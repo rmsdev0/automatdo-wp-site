@@ -1,0 +1,19 @@
+/*
+Theme Name: Automatdo
+Theme URI: https://www.automatdo.com
+Author: Automatdo
+Author URI: https://www.automatdo.com
+Description: Custom WordPress theme for Automatdo - AI Voice Agents for Enterprise
+Version: 1.0.0
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: automatdo
+Requires at least: 6.0
+Tested up to: 6.4
+Requires PHP: 7.4
+*/
+
+/*
+ * Main styles are loaded via functions.php from assets/css/landing.css
+ * This file contains the required WordPress theme header
+ */
