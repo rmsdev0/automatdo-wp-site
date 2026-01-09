@@ -33,6 +33,8 @@ rsync -avz --dry-run --delete \
     --exclude '.git' \
     --exclude '.gitignore' \
     --exclude 'deploy.sh' \
+    --exclude 'README.md' \
+    --exclude 'DEPLOYMENT.md' \
     --exclude 'node_modules' \
     --exclude '.DS_Store' \
     -e "ssh -i ${SSH_KEY}" \
@@ -49,6 +51,8 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
         --exclude '.git' \
         --exclude '.gitignore' \
         --exclude 'deploy.sh' \
+        --exclude 'README.md' \
+        --exclude 'DEPLOYMENT.md' \
         --exclude 'node_modules' \
         --exclude '.DS_Store' \
         -e "ssh -i ${SSH_KEY}" \
