@@ -1,20 +1,21 @@
+cat > deploy.sh << 'EOF'
 #!/bin/bash
 
 # ===========================================
 # Deploy script for automatdo WordPress theme
 # ===========================================
 
-# Configuration - UPDATE THESE
-SERVER_USER="ubuntu"                    # SSH user (ubuntu for AWS Lightsail)
-SERVER_HOST="16.58.81.95"            # Your Lightsail IP or domain
-SERVER_PATH="/var/www/html/wp-content/themes/automatdo"  # Theme path on server
-SSH_KEY="~/.ssh/lightsail.pem" # Path to your SSH key
+# Configuration
+SERVER_USER="ubuntu"
+SERVER_HOST="16.58.81.95"
+SERVER_PATH="/var/www/html/wp-content/themes/automatdo"
+SSH_KEY="~/.ssh/lightsail.pem"
 
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
 # Check if server is configured
 if [ "$SERVER_HOST" = "YOUR_SERVER_IP" ]; then
@@ -59,7 +60,12 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
         "${SCRIPT_DIR}/" \
         "${SERVER_USER}@${SERVER_HOST}:${SERVER_PATH}/"
 
+    # Fix permissions
+    echo -e "${YELLOW}Fixing permissions...${NC}"
+    ssh -i ${SSH_KEY} ${SERVER_USER}@${SERVER_HOST} "sudo chown -R www-data:www-data ${SERVER_PATH} && sudo chmod -R 755 ${SERVER_PATH}"
+
     echo -e "${GREEN}Deployment complete!${NC}"
 else
     echo -e "${RED}Deployment cancelled.${NC}"
 fi
+EOF
