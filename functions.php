@@ -281,6 +281,22 @@ function automatdo_theme_color_meta() {
 add_action('wp_head', 'automatdo_theme_color_meta', 1);
 
 /**
+ * Add Microsoft Clarity tracking
+ */
+function automatdo_add_clarity_tracking() {
+    ?>
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "v10uiil25q");
+    </script>
+    <?php
+}
+add_action('wp_head', 'automatdo_add_clarity_tracking', 2);
+
+/**
  * Include blog post importer (run once)
  */
 require_once AUTOMATDO_DIR . '/import-posts.php';
