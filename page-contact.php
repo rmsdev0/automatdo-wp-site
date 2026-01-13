@@ -143,72 +143,102 @@ get_header();
                     <div class="faq-item">
                         <button class="faq-question" aria-expanded="false">
                             <span>How quickly can I deploy an AI voice agent?</span>
-                            <svg class="faq-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
+                            <span class="faq-icon">
+                                <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                                    <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
                         </button>
                         <div class="faq-answer">
-                            <p>Most customers are live within days, not months. Our platform is designed for rapid deployment with pre-built templates for common use cases like TPV, appointment scheduling, and customer service.</p>
+                            <div class="faq-answer-inner">
+                                <div class="faq-answer-divider"></div>
+                                <p>Most customers are live within days, not months. Our platform is designed for rapid deployment with pre-built templates for common use cases like TPV, appointment scheduling, and customer service.</p>
+                            </div>
                         </div>
                     </div>
 
                     <div class="faq-item">
                         <button class="faq-question" aria-expanded="false">
                             <span>What languages do your AI agents support?</span>
-                            <svg class="faq-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
+                            <span class="faq-icon">
+                                <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                                    <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
                         </button>
                         <div class="faq-answer">
-                            <p>Our AI agents support 50+ languages with automatic language detection. A caller can start in English and switch to Spanish mid-call, and the agent will seamlessly continue the conversation in their preferred language.</p>
+                            <div class="faq-answer-inner">
+                                <div class="faq-answer-divider"></div>
+                                <p>Our AI agents support 50+ languages with automatic language detection. A caller can start in English and switch to Spanish mid-call, and the agent will seamlessly continue the conversation in their preferred language.</p>
+                            </div>
                         </div>
                     </div>
 
                     <div class="faq-item">
                         <button class="faq-question" aria-expanded="false">
                             <span>How does pricing work?</span>
-                            <svg class="faq-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
+                            <span class="faq-icon">
+                                <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                                    <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
                         </button>
                         <div class="faq-answer">
-                            <p>We offer flexible pricing based on your call volume and use case. Contact us for a custom quote tailored to your specific needs. We're committed to providing transparent, value-based pricing.</p>
+                            <div class="faq-answer-inner">
+                                <div class="faq-answer-divider"></div>
+                                <p>We offer flexible pricing based on your call volume and use case. Contact us for a custom quote tailored to your specific needs. We're committed to providing transparent, value-based pricing.</p>
+                            </div>
                         </div>
                     </div>
 
                     <div class="faq-item">
                         <button class="faq-question" aria-expanded="false">
                             <span>Can AI agents transfer to human agents?</span>
-                            <svg class="faq-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
+                            <span class="faq-icon">
+                                <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                                    <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
                         </button>
                         <div class="faq-answer">
-                            <p>Absolutely. Our AI agents can perform warm transfers to human agents when needed, passing along full context from the conversation. You define the escalation rules based on your business requirements.</p>
+                            <div class="faq-answer-inner">
+                                <div class="faq-answer-divider"></div>
+                                <p>Absolutely. Our AI agents can perform warm transfers to human agents when needed, passing along full context from the conversation. You define the escalation rules based on your business requirements.</p>
+                            </div>
                         </div>
                     </div>
 
                     <div class="faq-item">
                         <button class="faq-question" aria-expanded="false">
                             <span>Is Automatdo compliant with industry regulations?</span>
-                            <svg class="faq-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
+                            <span class="faq-icon">
+                                <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                                    <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
                         </button>
                         <div class="faq-answer">
-                            <p>Yes. We're built for regulated industries. Our platform supports FCC, state PUC, TCPA, and industry-specific compliance requirements. All calls are recorded with complete audit trails for compliance verification.</p>
+                            <div class="faq-answer-inner">
+                                <div class="faq-answer-divider"></div>
+                                <p>Yes. We're built for regulated industries. Our platform supports FCC, state PUC, TCPA, and industry-specific compliance requirements. All calls are recorded with complete audit trails for compliance verification.</p>
+                            </div>
                         </div>
                     </div>
 
                     <div class="faq-item">
                         <button class="faq-question" aria-expanded="false">
                             <span>What integrations do you support?</span>
-                            <svg class="faq-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
+                            <span class="faq-icon">
+                                <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+                                    <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
                         </button>
                         <div class="faq-answer">
-                            <p>We integrate with popular CRMs (Salesforce, HubSpot, GoHighLevel), calendar systems (Google, Outlook), and custom platforms via our REST API and webhooks. Our team can help with custom integrations.</p>
+                            <div class="faq-answer-inner">
+                                <div class="faq-answer-divider"></div>
+                                <p>We integrate with popular CRMs (Salesforce, HubSpot, GoHighLevel), calendar systems (Google, Outlook), and custom platforms via our REST API and webhooks. Our team can help with custom integrations.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
