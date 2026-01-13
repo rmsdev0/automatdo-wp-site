@@ -1,4 +1,3 @@
-cat > deploy.sh << 'EOF'
 #!/bin/bash
 
 # ===========================================
@@ -30,7 +29,7 @@ echo -e "${YELLOW}Deploying theme to ${SERVER_HOST}...${NC}"
 
 # Dry run first to show what will change
 echo -e "${YELLOW}Files to sync:${NC}"
-rsync -avz --dry-run --delete \
+rsync -avz --dry-run --delete --no-perms --no-owner --no-group \
     --exclude '.git' \
     --exclude '.gitignore' \
     --exclude 'deploy.sh' \
@@ -48,7 +47,12 @@ read -p "Proceed with deployment? (y/n) " -n 1 -r
 echo ""
 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    rsync -avz --delete \
+    # Set ownership to ubuntu for rsync
+    echo -e "${YELLOW}Preparing server...${NC}"
+    ssh -i ${SSH_KEY} ${SERVER_USER}@${SERVER_HOST} "sudo chown -R ubuntu:ubuntu ${SERVER_PATH}"
+
+    # Deploy files
+    rsync -avz --delete --no-perms --no-owner --no-group \
         --exclude '.git' \
         --exclude '.gitignore' \
         --exclude 'deploy.sh' \
@@ -60,7 +64,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
         "${SCRIPT_DIR}/" \
         "${SERVER_USER}@${SERVER_HOST}:${SERVER_PATH}/"
 
-    # Fix permissions
+    # Fix permissions for WordPress
     echo -e "${YELLOW}Fixing permissions...${NC}"
     ssh -i ${SSH_KEY} ${SERVER_USER}@${SERVER_HOST} "sudo chown -R www-data:www-data ${SERVER_PATH} && sudo chmod -R 755 ${SERVER_PATH}"
 
@@ -68,4 +72,3 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
 else
     echo -e "${RED}Deployment cancelled.${NC}"
 fi
-EOF
