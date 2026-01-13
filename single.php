@@ -42,6 +42,12 @@ get_header();
                     </div>
                     <div class="article-stats">
                         <span><?php echo get_the_date('F j, Y'); ?></span>
+                        <?php
+                        $last_modified = automatdo_get_last_modified();
+                        if ($last_modified) :
+                        ?>
+                        <span class="article-updated">Updated <?php echo esc_html($last_modified); ?></span>
+                        <?php endif; ?>
                         <span><?php echo automatdo_reading_time(); ?> min read</span>
                     </div>
                 </div>

@@ -221,6 +221,9 @@ function automatdo_body_classes($classes) {
     if (is_singular('post')) {
         $classes[] = 'single-post';
     }
+    if (is_404()) {
+        $classes[] = 'error-404';
+    }
     return $classes;
 }
 add_filter('body_class', 'automatdo_body_classes');
@@ -265,3 +268,262 @@ add_action('wp_head', 'automatdo_theme_color_meta', 1);
  * Include blog post importer (run once)
  */
 require_once AUTOMATDO_DIR . '/import-posts.php';
+
+/**
+ * =============================================================================
+ * SEO ENHANCEMENTS
+ * =============================================================================
+ */
+
+/**
+ * Add Article Schema (JSON-LD) for blog posts
+ * Outputs structured data for better search engine understanding
+ */
+function automatdo_article_schema() {
+    if (!is_singular('post')) {
+        return;
+    }
+
+    $post_id = get_the_ID();
+    $post = get_post($post_id);
+    $author_id = $post->post_author;
+
+    // Get featured image
+    $image_url = '';
+    $image_width = '';
+    $image_height = '';
+    if (has_post_thumbnail($post_id)) {
+        $image_id = get_post_thumbnail_id($post_id);
+        $image_data = wp_get_attachment_image_src($image_id, 'full');
+        if ($image_data) {
+            $image_url = $image_data[0];
+            $image_width = $image_data[1];
+            $image_height = $image_data[2];
+        }
+    } else {
+        // Fallback to default OG image
+        $image_url = AUTOMATDO_URI . '/assets/images/og-image.jpg';
+        $image_width = 1200;
+        $image_height = 630;
+    }
+
+    // Get categories
+    $categories = get_the_category($post_id);
+    $category_names = array();
+    foreach ($categories as $category) {
+        $category_names[] = $category->name;
+    }
+
+    // Build schema
+    $schema = array(
+        '@context' => 'https://schema.org',
+        '@type' => 'Article',
+        'headline' => get_the_title($post_id),
+        'description' => get_the_excerpt($post_id) ?: wp_trim_words(get_the_content(), 30, '...'),
+        'image' => array(
+            '@type' => 'ImageObject',
+            'url' => $image_url,
+            'width' => $image_width,
+            'height' => $image_height,
+        ),
+        'author' => array(
+            '@type' => 'Person',
+            'name' => get_the_author_meta('display_name', $author_id),
+            'url' => get_author_posts_url($author_id),
+        ),
+        'publisher' => array(
+            '@type' => 'Organization',
+            'name' => 'Automatdo',
+            'logo' => array(
+                '@type' => 'ImageObject',
+                'url' => AUTOMATDO_URI . '/assets/images/icon.png',
+            ),
+        ),
+        'datePublished' => get_the_date('c', $post_id),
+        'dateModified' => get_the_modified_date('c', $post_id),
+        'mainEntityOfPage' => array(
+            '@type' => 'WebPage',
+            '@id' => get_permalink($post_id),
+        ),
+        'wordCount' => str_word_count(strip_tags($post->post_content)),
+        'articleSection' => !empty($category_names) ? $category_names[0] : 'Blog',
+        'keywords' => implode(', ', $category_names),
+    );
+
+    echo '<script type="application/ld+json">' . "\n";
+    echo wp_json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+    echo "\n" . '</script>' . "\n";
+}
+add_action('wp_head', 'automatdo_article_schema', 5);
+
+/**
+ * Add BreadcrumbList Schema (JSON-LD)
+ * Outputs breadcrumb structured data for blog posts
+ */
+function automatdo_breadcrumb_schema() {
+    if (!is_singular('post')) {
+        return;
+    }
+
+    $post_id = get_the_ID();
+    $categories = get_the_category($post_id);
+
+    $breadcrumbs = array(
+        '@context' => 'https://schema.org',
+        '@type' => 'BreadcrumbList',
+        'itemListElement' => array(
+            array(
+                '@type' => 'ListItem',
+                'position' => 1,
+                'name' => 'Home',
+                'item' => home_url('/'),
+            ),
+            array(
+                '@type' => 'ListItem',
+                'position' => 2,
+                'name' => 'Blog',
+                'item' => home_url('/blog/'),
+            ),
+        ),
+    );
+
+    // Add category if exists
+    if (!empty($categories)) {
+        $breadcrumbs['itemListElement'][] = array(
+            '@type' => 'ListItem',
+            'position' => 3,
+            'name' => $categories[0]->name,
+            'item' => get_category_link($categories[0]->term_id),
+        );
+
+        $breadcrumbs['itemListElement'][] = array(
+            '@type' => 'ListItem',
+            'position' => 4,
+            'name' => get_the_title($post_id),
+            'item' => get_permalink($post_id),
+        );
+    } else {
+        $breadcrumbs['itemListElement'][] = array(
+            '@type' => 'ListItem',
+            'position' => 3,
+            'name' => get_the_title($post_id),
+            'item' => get_permalink($post_id),
+        );
+    }
+
+    echo '<script type="application/ld+json">' . "\n";
+    echo wp_json_encode($breadcrumbs, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+    echo "\n" . '</script>' . "\n";
+}
+add_action('wp_head', 'automatdo_breadcrumb_schema', 5);
+
+/**
+ * Default Open Graph image fallback for Yoast
+ * Used when posts don't have a featured image
+ */
+function automatdo_yoast_default_og_image($image) {
+    if (empty($image)) {
+        return AUTOMATDO_URI . '/assets/images/og-image.jpg';
+    }
+    return $image;
+}
+add_filter('wpseo_opengraph_image', 'automatdo_yoast_default_og_image');
+
+/**
+ * Default Twitter image fallback for Yoast
+ */
+function automatdo_yoast_default_twitter_image($image) {
+    if (empty($image)) {
+        return AUTOMATDO_URI . '/assets/images/og-image.jpg';
+    }
+    return $image;
+}
+add_filter('wpseo_twitter_image', 'automatdo_yoast_default_twitter_image');
+
+/**
+ * Ensure featured images have alt text
+ * Falls back to post title if no alt text is set
+ */
+function automatdo_ensure_image_alt($attr, $attachment, $size) {
+    if (empty($attr['alt'])) {
+        // Try to get alt from attachment
+        $alt = get_post_meta($attachment->ID, '_wp_attachment_image_alt', true);
+
+        if (empty($alt)) {
+            // Fall back to attachment title
+            $alt = $attachment->post_title;
+        }
+
+        if (empty($alt)) {
+            // Fall back to parent post title if this is a featured image
+            $parent_id = $attachment->post_parent;
+            if ($parent_id) {
+                $alt = get_the_title($parent_id);
+            }
+        }
+
+        $attr['alt'] = $alt;
+    }
+    return $attr;
+}
+add_filter('wp_get_attachment_image_attributes', 'automatdo_ensure_image_alt', 10, 3);
+
+/**
+ * Add last modified date to post meta (for display in templates)
+ */
+function automatdo_get_last_modified($post_id = null) {
+    $post_id = $post_id ?: get_the_ID();
+    $modified = get_the_modified_date('U', $post_id);
+    $published = get_the_date('U', $post_id);
+
+    // Only show if modified date is different from published (more than 1 day)
+    if (($modified - $published) > 86400) {
+        return get_the_modified_date('F j, Y', $post_id);
+    }
+    return false;
+}
+
+/**
+ * Enable Yoast breadcrumbs support
+ * Add this to your theme where you want breadcrumbs to appear
+ */
+function automatdo_yoast_breadcrumbs() {
+    if (function_exists('yoast_breadcrumb')) {
+        yoast_breadcrumb('<nav class="yoast-breadcrumb" aria-label="Breadcrumb">', '</nav>');
+    }
+}
+
+/**
+ * Customize Yoast breadcrumb separator
+ */
+function automatdo_yoast_breadcrumb_separator($separator) {
+    return '<span class="breadcrumb-separator">/</span>';
+}
+add_filter('wpseo_breadcrumb_separator', 'automatdo_yoast_breadcrumb_separator');
+
+/**
+ * Add WebSite schema for sitelinks search box
+ */
+function automatdo_website_schema() {
+    if (!is_front_page()) {
+        return;
+    }
+
+    $schema = array(
+        '@context' => 'https://schema.org',
+        '@type' => 'WebSite',
+        'name' => get_bloginfo('name'),
+        'url' => home_url('/'),
+        'description' => get_bloginfo('description'),
+        'publisher' => array(
+            '@type' => 'Organization',
+            'name' => 'Automatdo',
+            'logo' => AUTOMATDO_URI . '/assets/images/icon.png',
+        ),
+    );
+
+    echo '<script type="application/ld+json">' . "\n";
+    echo wp_json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+    echo "\n" . '</script>' . "\n";
+}
+add_action('wp_head', 'automatdo_website_schema', 5);

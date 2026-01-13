@@ -85,7 +85,7 @@
     <div class="noise-overlay" aria-hidden="true"></div>
 
     <!-- Navigation -->
-    <nav class="nav<?php echo is_singular('post') || is_home() || is_archive() ? ' scrolled' : ''; ?>">
+    <nav class="nav<?php echo is_singular('post') || is_home() || is_archive() || is_404() ? ' scrolled' : ''; ?>">
         <div class="nav-container">
             <a href="<?php echo home_url(); ?>" class="nav-logo">
                 <?php if (has_custom_logo()) : ?>
