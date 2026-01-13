@@ -89,7 +89,7 @@
                             <span>Webhook integration for CRM sync</span>
                         </li>
                     </ul>
-                    <a href="#demo" class="btn-primary">Get Started with TPV</a>
+                    <a href="/solutions/tpv" class="btn-primary">Get Started with TPV</a>
                 </div>
                 <div class="solution-visual">
                     <div class="tpv-mockup">
@@ -174,7 +174,7 @@
                             <span>After-hours message taking</span>
                         </li>
                     </ul>
-                    <a href="#demo" class="btn-primary">Explore Fitness Solutions</a>
+                    <a href="/solutions/fitness" class="btn-primary">Explore Fitness Solutions</a>
                 </div>
                 <div class="solution-visual">
                     <div class="fitness-mockup">
@@ -234,7 +234,7 @@
                             <span>CRM integration</span>
                         </li>
                     </ul>
-                    <a href="#demo" class="btn-primary">Learn More</a>
+                    <a href="/solutions/home-services" class="btn-primary">Learn More</a>
                 </div>
                 <div class="solution-visual">
                     <div class="home-mockup">
