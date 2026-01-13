@@ -6,9 +6,9 @@
 
 # Configuration - UPDATE THESE
 SERVER_USER="ubuntu"                    # SSH user (ubuntu for AWS Lightsail)
-SERVER_HOST="YOUR_SERVER_IP"            # Your Lightsail IP or domain
+SERVER_HOST="16.58.81.95"            # Your Lightsail IP or domain
 SERVER_PATH="/var/www/html/wp-content/themes/automatdo"  # Theme path on server
-SSH_KEY="~/.ssh/your-lightsail-key.pem" # Path to your SSH key
+SSH_KEY="~/.ssh/lightsail.pem" # Path to your SSH key
 
 # Colors for output
 RED='\033[0;31m'
