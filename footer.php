@@ -17,21 +17,19 @@
                         <a href="<?php echo home_url('/#features'); ?>">Features</a>
                         <a href="<?php echo home_url('/#solutions'); ?>">Solutions</a>
                         <a href="<?php echo home_url('/#pricing'); ?>">Pricing</a>
-                        <a href="#">Documentation</a>
                     </div>
                     <div class="footer-column">
                         <h4>Solutions</h4>
-                        <a href="#">TPV Verification</a>
+                        <a href="<?php echo home_url('/solutions/tpv/'); ?>">TPV Verification</a>
                         <a href="#">Contact Centers</a>
-                        <a href="#">Home Services</a>
-                        <a href="#">Fitness & Wellness</a>
+                        <a href="<?php echo home_url('/solutions/home-services/'); ?>">Home Services</a>
+                        <a href="<?php echo home_url('/solutions/fitness/'); ?>">Fitness & Wellness</a>
                     </div>
                     <div class="footer-column">
                         <h4>Company</h4>
                         <a href="#">About</a>
                         <a href="<?php echo home_url('/blog/'); ?>">Blog</a>
-                        <a href="#">Careers</a>
-                        <a href="<?php echo home_url('/#demo'); ?>">Contact</a>
+                        <a href="<?php echo home_url('/contact/'); ?>">Contact</a>
                     </div>
                 </div>
             </div>
