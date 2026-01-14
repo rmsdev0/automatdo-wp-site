@@ -184,7 +184,8 @@ function automatdo_scripts() {
             true
         );
         wp_localize_script('automatdo-voice-demo', 'voiceDemoConfig', array(
-            'wsEndpoint' => 'wss://app.automatdo.com/browser-voice-agent',
+            // Local development - change to 'wss://app.automatdo.com/browser-voice-agent' for production
+            'wsEndpoint' => 'ws://localhost:8000/browser-voice-agent',
             'themeUrl'   => AUTOMATDO_URI,
             'audioProcessorUrl' => AUTOMATDO_URI . '/assets/js/audio-processor.js',
         ));

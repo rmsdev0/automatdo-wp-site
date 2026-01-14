@@ -167,7 +167,7 @@
                     <div class="voice-demo-content">
                         <div class="voice-demo-visualizer">
                             <div class="voice-demo-orb-container">
-                                <canvas class="voice-demo-orb" width="600" height="600"></canvas>
+                                <canvas class="voice-demo-orb" width="440" height="440"></canvas>
                             </div>
 
                             <div class="voice-demo-status" data-state="idle">
@@ -338,7 +338,7 @@
 
         open() {
             this.overlay.classList.add('active');
-            document.body.style.overflow = 'hidden';
+            document.body.classList.add('voice-demo-open');
             this.startVisualizer();
         }
 
@@ -347,7 +347,7 @@
                 this.disconnect();
             }
             this.overlay.classList.remove('active');
-            document.body.style.overflow = '';
+            document.body.classList.remove('voice-demo-open');
             this.stopVisualizer();
             this.reset();
         }
@@ -396,7 +396,13 @@
             this.updateStatus('idle', 'Connecting...');
 
             try {
+                // Check for secure context (required for getUserMedia)
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error('Microphone access requires HTTPS. Please access this site via https:// or localhost.');
+                }
+
                 // Request microphone permission
+                console.log('[VoiceDemo] Requesting microphone...');
                 this.mediaStream = await navigator.mediaDevices.getUserMedia({
                     audio: {
                         sampleRate: 16000,
@@ -406,31 +412,49 @@
                         autoGainControl: true
                     }
                 });
+                console.log('[VoiceDemo] Microphone access granted');
 
                 // Initialize audio context
                 this.audioContext = new (window.AudioContext || window.webkitAudioContext)({
                     sampleRate: 16000
                 });
 
+                // Resume audio context (required after user interaction)
+                if (this.audioContext.state === 'suspended') {
+                    await this.audioContext.resume();
+                }
+                console.log('[VoiceDemo] AudioContext state:', this.audioContext.state, 'sampleRate:', this.audioContext.sampleRate);
+
                 // Load audio worklet
                 const workletUrl = this.config.audioProcessorUrl ||
                     (window.voiceDemoConfig?.themeUrl || '') + '/assets/js/audio-processor.js';
+                console.log('[VoiceDemo] Loading AudioWorklet from:', workletUrl);
 
                 await this.audioContext.audioWorklet.addModule(workletUrl);
+                console.log('[VoiceDemo] AudioWorklet loaded');
 
                 // Create worklet node
                 const source = this.audioContext.createMediaStreamSource(this.mediaStream);
                 this.workletNode = new AudioWorkletNode(this.audioContext, 'voice-demo-processor');
+                console.log('[VoiceDemo] WorkletNode created');
 
+                let audioChunkCount = 0;
                 this.workletNode.port.onmessage = (e) => {
-                    if (e.data.type === 'audio' && this.ws?.readyState === WebSocket.OPEN && !this.isMuted) {
-                        this.sendAudio(e.data.buffer);
+                    if (e.data.type === 'audio') {
+                        audioChunkCount++;
+                        if (audioChunkCount <= 3 || audioChunkCount % 50 === 0) {
+                            console.log('[VoiceDemo] Audio chunk', audioChunkCount, 'size:', e.data.buffer.byteLength);
+                        }
+                        if (this.ws?.readyState === WebSocket.OPEN && !this.isMuted) {
+                            this.sendAudio(e.data.buffer);
+                        }
                     } else if (e.data.type === 'level') {
                         this.audioLevel = e.data.level;
                     }
                 };
 
                 source.connect(this.workletNode);
+                console.log('[VoiceDemo] Audio pipeline connected');
 
                 // Connect WebSocket
                 await this.connectWebSocket();
@@ -481,11 +505,24 @@
                 this.ws.onmessage = (event) => {
                     if (event.data instanceof ArrayBuffer) {
                         // Binary audio data
+                        console.log('[VoiceDemo] Received binary audio, size:', event.data.byteLength);
                         this.queueAudio(event.data);
                     } else {
                         // JSON message
                         const msg = JSON.parse(event.data);
-                        this.handleMessage(msg);
+
+                        // Check if this is an audio message in JSON format
+                        if (msg.type === 'audio' && msg.data) {
+                            const audioData = Uint8Array.from(atob(msg.data), c => c.charCodeAt(0));
+                            if (!this._jsonAudioCount) this._jsonAudioCount = 0;
+                            this._jsonAudioCount++;
+                            if (this._jsonAudioCount <= 3 || this._jsonAudioCount % 20 === 0) {
+                                console.log('[VoiceDemo] Received JSON audio chunk', this._jsonAudioCount, 'size:', audioData.byteLength);
+                            }
+                            this.queueAudio(audioData.buffer);
+                        } else {
+                            this.handleMessage(msg);
+                        }
 
                         if (msg.type === 'session_started') {
                             this.sessionId = msg.session_id;
@@ -572,14 +609,26 @@
             if (this.ws?.readyState === WebSocket.OPEN) {
                 // Convert to base64 and send as JSON
                 const base64 = this.arrayBufferToBase64(buffer);
+                if (!this._audioSendCount) this._audioSendCount = 0;
+                this._audioSendCount++;
+                if (this._audioSendCount <= 3 || this._audioSendCount % 50 === 0) {
+                    console.log('[VoiceDemo] Sending audio chunk', this._audioSendCount, 'to WebSocket');
+                }
                 this.ws.send(JSON.stringify({
                     type: 'audio',
                     data: base64
                 }));
+            } else {
+                console.warn('[VoiceDemo] WebSocket not open, state:', this.ws?.readyState);
             }
         }
 
         queueAudio(buffer) {
+            if (!this._audioQueueCount) this._audioQueueCount = 0;
+            this._audioQueueCount++;
+            if (this._audioQueueCount <= 3 || this._audioQueueCount % 20 === 0) {
+                console.log('[VoiceDemo] Queueing audio chunk', this._audioQueueCount, 'size:', buffer.byteLength, 'queue length:', this.audioQueue.length + 1);
+            }
             this.audioQueue.push(buffer);
             if (!this.isPlaying) {
                 this.playNextAudio();
@@ -603,6 +652,12 @@
                     float32[i] = int16[i] / 32768;
                 }
 
+                if (!this._audioPlayCount) this._audioPlayCount = 0;
+                this._audioPlayCount++;
+                if (this._audioPlayCount <= 3 || this._audioPlayCount % 20 === 0) {
+                    console.log('[VoiceDemo] Playing audio chunk', this._audioPlayCount, 'samples:', float32.length);
+                }
+
                 // Create audio buffer (assuming 24kHz from server)
                 const audioBuffer = this.audioContext.createBuffer(1, float32.length, 24000);
                 audioBuffer.getChannelData(0).set(float32);
@@ -613,7 +668,7 @@
                 source.onended = () => this.playNextAudio();
                 source.start();
             } catch (err) {
-                console.error('Audio playback error:', err);
+                console.error('[VoiceDemo] Audio playback error:', err);
                 this.playNextAudio();
             }
         }
@@ -741,7 +796,7 @@
         drawOrb() {
             const canvas = this.canvas;
             const ctx = this.ctx;
-            const size = 300;
+            const size = 220;
             const dpr = window.devicePixelRatio || 1;
 
             // Ensure canvas size
@@ -783,10 +838,10 @@
 
             // Draw layers
             const layers = [
-                { radius: 50, opacity: 0.9 },
-                { radius: 70, opacity: 0.6 },
-                { radius: 90, opacity: 0.4 },
-                { radius: 110, opacity: 0.2 }
+                { radius: 35, opacity: 0.9 },
+                { radius: 50, opacity: 0.6 },
+                { radius: 65, opacity: 0.4 },
+                { radius: 80, opacity: 0.2 }
             ];
 
             layers.forEach((layer, i) => {
