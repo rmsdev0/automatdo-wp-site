@@ -167,6 +167,28 @@ function automatdo_scripts() {
         'nonce'   => wp_create_nonce('automatdo_nonce'),
         'homeUrl' => home_url(),
     ));
+
+    // Voice Demo Widget (front page only)
+    if (is_front_page()) {
+        wp_enqueue_style(
+            'automatdo-voice-demo',
+            AUTOMATDO_URI . '/assets/css/voice-demo.css',
+            array('automatdo-landing'),
+            AUTOMATDO_VERSION
+        );
+        wp_enqueue_script(
+            'automatdo-voice-demo',
+            AUTOMATDO_URI . '/assets/js/voice-demo.js',
+            array('automatdo-landing'),
+            AUTOMATDO_VERSION,
+            true
+        );
+        wp_localize_script('automatdo-voice-demo', 'voiceDemoConfig', array(
+            'wsEndpoint' => 'wss://app.automatdo.com/browser-voice-agent',
+            'themeUrl'   => AUTOMATDO_URI,
+            'audioProcessorUrl' => AUTOMATDO_URI . '/assets/js/audio-processor.js',
+        ));
+    }
 }
 add_action('wp_enqueue_scripts', 'automatdo_scripts');
 
