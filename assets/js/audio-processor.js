@@ -6,7 +6,7 @@
 class VoiceDemoProcessor extends AudioWorkletProcessor {
     constructor() {
         super();
-        this.bufferSize = 4096; // ~256ms at 16kHz
+        this.bufferSize = 2048; // ~128ms at 16kHz (lower latency)
         this.buffer = new Float32Array(this.bufferSize);
         this.bufferIndex = 0;
     }

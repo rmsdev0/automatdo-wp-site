@@ -66,6 +66,10 @@
         }
     };
 
+    const CONNECT_TIMEOUT_MS = 10000;
+    const SESSION_TIMEOUT_MS = 10000;
+    const MAX_PLAYBACK_LAG_SEC = 12;
+
     class VoiceDemo {
         constructor() {
             this.overlay = null;
@@ -85,9 +89,14 @@
             this.audioContext = null;
             this.mediaStream = null;
             this.workletNode = null;
-            this.audioQueue = [];
-            this.isPlaying = false;
             this.audioLevel = 0;
+            this.inputSampleRate = 16000;
+            this.outputSampleRate = 24000;
+            this.playbackTime = 0;
+            this.scheduledSources = new Set();
+            this.lastAgentSpeechAt = null;
+            this.lastBargeInAt = null;
+            this.ignoreAudioUntil = 0;
 
             // Visualizer
             this.canvas = null;
@@ -107,6 +116,21 @@
             this.config = window.voiceDemoConfig || {
                 wsEndpoint: 'wss://app.automatdo.com/browser-voice-agent'
             };
+            this.useBinaryAudio = this.config.useBinaryAudio !== false;
+            this.enableBargeIn = this.config.enableBargeIn !== false;
+            this.dropLaggingAudio = this.config.dropLaggingAudio === true;
+            this.bargeInMinSpeakingMs = Number.isFinite(this.config.bargeInMinSpeakingMs)
+                ? this.config.bargeInMinSpeakingMs
+                : 200;
+            this.bargeInMinLevel = Number.isFinite(this.config.bargeInMinLevel)
+                ? this.config.bargeInMinLevel
+                : 0;
+            this.bargeInCooldownMs = Number.isFinite(this.config.bargeInCooldownMs)
+                ? this.config.bargeInCooldownMs
+                : 500;
+            this.bargeInDropMs = Number.isFinite(this.config.bargeInDropMs)
+                ? this.config.bargeInDropMs
+                : this.bargeInCooldownMs;
 
             this.init();
         }
@@ -311,18 +335,14 @@
             // Provider toggle
             this.overlay.querySelectorAll('.voice-demo-provider').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    if (this.status !== 'connected') {
-                        this.selectProvider(btn.dataset.provider);
-                    }
+                    this.selectProvider(btn.dataset.provider);
                 });
             });
 
             // Agent tabs
             this.overlay.querySelectorAll('.voice-demo-tab').forEach(tab => {
                 tab.addEventListener('click', () => {
-                    if (this.status !== 'connected') {
-                        this.selectAgent(tab.dataset.agent);
-                    }
+                    this.selectAgent(tab.dataset.agent);
                 });
             });
 
@@ -345,6 +365,8 @@
         close() {
             if (this.status === 'connected') {
                 this.disconnect();
+            } else {
+                this.cleanup();
             }
             this.overlay.classList.remove('active');
             document.body.classList.remove('voice-demo-open');
@@ -355,28 +377,50 @@
         reset() {
             this.status = 'idle';
             this.agentState = 'idle';
+            this.sessionId = null;
             this.transcript = [];
             this.error = null;
             this.latency = { stt: null, llm: null, tts: null };
             this.overlay.setAttribute('data-status', 'idle');
             this.updateStatus('idle', 'Ready to start');
+            this.isMuted = false;
+            this.updateMicUI();
+            this.resetPlayback('reset');
+            this.overlay.querySelectorAll('.voice-demo-tab').forEach(tab => {
+                tab.disabled = false;
+            });
+            this.overlay.querySelectorAll('.voice-demo-provider').forEach(btn => {
+                btn.disabled = false;
+            });
+            const errorEl = this.overlay.querySelector('.voice-demo-error');
+            if (errorEl) {
+                errorEl.textContent = '';
+            }
             this.updateTranscript();
             this.updateLatency();
         }
 
         selectProvider(providerId) {
+            if (this.status === 'connected' || this.status === 'connecting') {
+                this.disconnect();
+            }
             this.selectedProvider = providerId;
             this.overlay.querySelectorAll('.voice-demo-provider').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.provider === providerId);
             });
             this.updateConfigDisplay();
+            this.prepareNewSession('provider-switch');
         }
 
         selectAgent(agentId) {
+            if (this.status === 'connected' || this.status === 'connecting') {
+                this.disconnect();
+            }
             this.selectedAgent = agentId;
             this.overlay.querySelectorAll('.voice-demo-tab').forEach(tab => {
                 tab.classList.toggle('active', tab.dataset.agent === agentId);
             });
+            this.prepareNewSession('agent-switch');
         }
 
         updateConfigDisplay() {
@@ -385,6 +429,26 @@
                 const el = this.overlay.querySelector(`[data-config="${key}"]`);
                 if (el) {
                     el.textContent = config[key];
+                }
+            });
+        }
+
+        applyServerConfig(config) {
+            const mapping = {
+                vad: 'vad',
+                stt: 'stt',
+                stt_model: 'sttModel',
+                llm: 'llm',
+                llm_model: 'llmModel',
+                tts: 'tts',
+                tts_model: 'ttsModel'
+            };
+            Object.keys(mapping).forEach(key => {
+                if (config[key]) {
+                    const el = this.overlay.querySelector(`[data-config="${mapping[key]}"]`);
+                    if (el) {
+                        el.textContent = String(config[key]);
+                    }
                 }
             });
         }
@@ -423,7 +487,8 @@
                 if (this.audioContext.state === 'suspended') {
                     await this.audioContext.resume();
                 }
-                console.log('[VoiceDemo] AudioContext state:', this.audioContext.state, 'sampleRate:', this.audioContext.sampleRate);
+                this.inputSampleRate = this.audioContext.sampleRate || 16000;
+                console.log('[VoiceDemo] AudioContext state:', this.audioContext.state, 'sampleRate:', this.inputSampleRate);
 
                 // Load audio worklet
                 const workletUrl = this.config.audioProcessorUrl ||
@@ -459,14 +524,6 @@
                 // Connect WebSocket
                 await this.connectWebSocket();
 
-                // Disable agent tabs and provider toggle during call
-                this.overlay.querySelectorAll('.voice-demo-tab').forEach(tab => {
-                    tab.disabled = true;
-                });
-                this.overlay.querySelectorAll('.voice-demo-provider').forEach(btn => {
-                    btn.disabled = true;
-                });
-
                 this.setStatus('connected');
                 this.updateStatus('listening', 'Listening...');
 
@@ -483,60 +540,98 @@
                 url.searchParams.set('agent', this.selectedAgent);
                 url.searchParams.set('provider', this.selectedProvider);
 
+                let settled = false;
+                let sessionTimeout = null;
+
+                const finalize = (fn, arg) => {
+                    if (settled) return;
+                    settled = true;
+                    clearTimeout(connectTimeout);
+                    clearTimeout(sessionTimeout);
+                    fn(arg);
+                };
+
+                const fail = (error) => {
+                    try {
+                        if (this.ws && this.ws.readyState <= WebSocket.OPEN) {
+                            this.ws.close();
+                        }
+                    } catch (err) {
+                        // noop
+                    }
+                    finalize(reject, error);
+                };
+
                 this.ws = new WebSocket(url.toString());
                 this.ws.binaryType = 'arraybuffer';
 
-                const timeout = setTimeout(() => {
-                    reject(new Error('Connection timeout'));
-                    this.ws.close();
-                }, 10000);
+                const connectTimeout = setTimeout(() => {
+                    fail(new Error('Connection timeout'));
+                }, CONNECT_TIMEOUT_MS);
 
                 this.ws.onopen = () => {
-                    clearTimeout(timeout);
+                    clearTimeout(connectTimeout);
+                    sessionTimeout = setTimeout(() => {
+                        fail(new Error('Session start timeout'));
+                    }, SESSION_TIMEOUT_MS);
                     // Send start message with provider
                     this.ws.send(JSON.stringify({
                         type: 'start',
                         agent_id: this.selectedAgent,
                         provider: this.selectedProvider,
-                        config: { sample_rate: 16000 }
+                        config: { sample_rate: this.inputSampleRate }
                     }));
                 };
 
                 this.ws.onmessage = (event) => {
                     if (event.data instanceof ArrayBuffer) {
-                        // Binary audio data
-                        console.log('[VoiceDemo] Received binary audio, size:', event.data.byteLength);
                         this.queueAudio(event.data);
+                        return;
+                    }
+                    if (event.data instanceof Blob) {
+                        event.data.arrayBuffer().then(buffer => this.queueAudio(buffer));
+                        return;
                     } else {
-                        // JSON message
-                        const msg = JSON.parse(event.data);
+                        if (typeof event.data !== 'string') {
+                            return;
+                        }
+
+                        let msg;
+                        try {
+                            msg = JSON.parse(event.data);
+                        } catch (err) {
+                            console.warn('[VoiceDemo] Invalid JSON message:', err);
+                            return;
+                        }
 
                         // Check if this is an audio message in JSON format
                         if (msg.type === 'audio' && msg.data) {
-                            const audioData = Uint8Array.from(atob(msg.data), c => c.charCodeAt(0));
-                            if (!this._jsonAudioCount) this._jsonAudioCount = 0;
-                            this._jsonAudioCount++;
-                            if (this._jsonAudioCount <= 3 || this._jsonAudioCount % 20 === 0) {
-                                console.log('[VoiceDemo] Received JSON audio chunk', this._jsonAudioCount, 'size:', audioData.byteLength);
+                            if (msg.sample_rate) {
+                                this.outputSampleRate = msg.sample_rate;
                             }
-                            this.queueAudio(audioData.buffer);
+                            this.queueAudio(this.base64ToArrayBuffer(msg.data));
                         } else {
                             this.handleMessage(msg);
                         }
 
                         if (msg.type === 'session_started') {
                             this.sessionId = msg.session_id;
-                            resolve();
+                            finalize(resolve);
+                        } else if (!settled && msg.type === 'error') {
+                            fail(new Error(msg.message || 'WebSocket error'));
                         }
                     }
                 };
 
                 this.ws.onerror = () => {
-                    clearTimeout(timeout);
-                    reject(new Error('WebSocket error'));
+                    fail(new Error('WebSocket error'));
                 };
 
                 this.ws.onclose = () => {
+                    if (!settled) {
+                        fail(new Error('WebSocket closed'));
+                        return;
+                    }
                     if (this.status === 'connected') {
                         this.disconnect();
                     }
@@ -556,15 +651,21 @@
 
                 case 'latency':
                     this.latency = {
-                        stt: msg.stt_ms,
-                        llm: msg.llm_ms,
-                        tts: msg.tts_ms
+                        stt: msg.stt_ms ?? this.latency.stt,
+                        llm: msg.llm_ms ?? this.latency.llm,
+                        tts: msg.tts_ms ?? this.latency.tts
                     };
                     this.updateLatency();
                     break;
 
                 case 'config':
-                    // Could update config panel if server sends different values
+                    this.applyServerConfig(msg);
+                    break;
+
+                case 'user_speech_started':
+                    if (this.shouldBargeIn()) {
+                        this.resetPlayback('interrupt');
+                    }
                     break;
 
                 case 'error':
@@ -578,7 +679,13 @@
         }
 
         setAgentState(state) {
+            const prevState = this.agentState;
             this.agentState = state;
+            if (state === 'speaking' && prevState !== 'speaking') {
+                this.lastAgentSpeechAt = performance.now();
+            } else if (state !== 'speaking') {
+                this.lastAgentSpeechAt = null;
+            }
             const statusTexts = {
                 idle: 'Ready',
                 listening: 'Listening...',
@@ -607,13 +714,20 @@
 
         sendAudio(buffer) {
             if (this.ws?.readyState === WebSocket.OPEN) {
-                // Convert to base64 and send as JSON
-                const base64 = this.arrayBufferToBase64(buffer);
                 if (!this._audioSendCount) this._audioSendCount = 0;
                 this._audioSendCount++;
                 if (this._audioSendCount <= 3 || this._audioSendCount % 50 === 0) {
                     console.log('[VoiceDemo] Sending audio chunk', this._audioSendCount, 'to WebSocket');
                 }
+                if (this.useBinaryAudio) {
+                    const payload = buffer instanceof ArrayBuffer
+                        ? buffer
+                        : buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+                    this.ws.send(payload);
+                    return;
+                }
+                // Convert to base64 and send as JSON
+                const base64 = this.arrayBufferToBase64(buffer);
                 this.ws.send(JSON.stringify({
                     type: 'audio',
                     data: base64
@@ -627,22 +741,19 @@
             if (!this._audioQueueCount) this._audioQueueCount = 0;
             this._audioQueueCount++;
             if (this._audioQueueCount <= 3 || this._audioQueueCount % 20 === 0) {
-                console.log('[VoiceDemo] Queueing audio chunk', this._audioQueueCount, 'size:', buffer.byteLength, 'queue length:', this.audioQueue.length + 1);
+                console.log('[VoiceDemo] Queueing audio chunk', this._audioQueueCount, 'size:', buffer.byteLength);
             }
-            this.audioQueue.push(buffer);
-            if (!this.isPlaying) {
-                this.playNextAudio();
-            }
-        }
-
-        async playNextAudio() {
-            if (this.audioQueue.length === 0) {
-                this.isPlaying = false;
+            if (!this.audioContext) {
                 return;
             }
-
-            this.isPlaying = true;
-            const buffer = this.audioQueue.shift();
+            if (this.ignoreAudioUntil && performance.now() < this.ignoreAudioUntil) {
+                if (!this._audioIgnoreLogged) {
+                    this._audioIgnoreLogged = true;
+                    console.log('[VoiceDemo] Ignoring agent audio due to barge-in');
+                }
+                return;
+            }
+            this._audioIgnoreLogged = false;
 
             try {
                 // Decode PCM16 to Float32
@@ -658,27 +769,42 @@
                     console.log('[VoiceDemo] Playing audio chunk', this._audioPlayCount, 'samples:', float32.length);
                 }
 
-                // Create audio buffer (assuming 24kHz from server)
-                const audioBuffer = this.audioContext.createBuffer(1, float32.length, 24000);
+                const sampleRate = this.outputSampleRate || 24000;
+                const audioBuffer = this.audioContext.createBuffer(1, float32.length, sampleRate);
                 audioBuffer.getChannelData(0).set(float32);
+
+                const now = this.audioContext.currentTime;
+                if (!this.playbackTime || this.playbackTime < now) {
+                    this.playbackTime = now;
+                }
+
+                const lag = this.playbackTime - now;
+                if (lag > MAX_PLAYBACK_LAG_SEC) {
+                    if (this.dropLaggingAudio) {
+                        this.resetPlayback('lag');
+                    } else if (!this._audioLagWarned) {
+                        this._audioLagWarned = true;
+                        console.warn('[VoiceDemo] Audio lag detected; keeping backlog to avoid drops');
+                    }
+                }
+
+                const startTime = Math.max(this.playbackTime, this.audioContext.currentTime + 0.03);
+                this.playbackTime = startTime + audioBuffer.duration;
 
                 const source = this.audioContext.createBufferSource();
                 source.buffer = audioBuffer;
                 source.connect(this.audioContext.destination);
-                source.onended = () => this.playNextAudio();
-                source.start();
+                this.scheduledSources.add(source);
+                source.onended = () => this.scheduledSources.delete(source);
+                source.start(startTime);
             } catch (err) {
                 console.error('[VoiceDemo] Audio playback error:', err);
-                this.playNextAudio();
             }
         }
 
         toggleMute() {
             this.isMuted = !this.isMuted;
-            const micBtn = this.overlay.querySelector('.voice-demo-mic');
-            micBtn.classList.toggle('muted', this.isMuted);
-            micBtn.querySelector('.mic-on').style.display = this.isMuted ? 'none' : 'block';
-            micBtn.querySelector('.mic-off').style.display = this.isMuted ? 'block' : 'none';
+            this.updateMicUI();
         }
 
         disconnect() {
@@ -701,6 +827,8 @@
         }
 
         cleanup() {
+            this.resetPlayback('cleanup');
+
             // Close WebSocket
             if (this.ws) {
                 this.ws.close();
@@ -720,8 +848,6 @@
             }
 
             this.workletNode = null;
-            this.audioQueue = [];
-            this.isPlaying = false;
         }
 
         setStatus(status) {
@@ -733,6 +859,7 @@
             this.error = message;
             this.setStatus('error');
             this.overlay.querySelector('.voice-demo-error').textContent = message;
+            this.resetPlayback('error');
         }
 
         updateStatus(state, text) {
@@ -764,7 +891,7 @@
                 const el = this.overlay.querySelector(`[data-metric="${metric}"]`);
                 if (el) {
                     const value = this.latency[metric];
-                    if (value !== null) {
+                    if (value !== null && value !== undefined) {
                         el.textContent = `${value}MS`;
                         el.classList.remove('pending');
                     } else {
@@ -773,6 +900,80 @@
                     }
                 }
             });
+        }
+
+        updateMicUI() {
+            const micBtn = this.overlay.querySelector('.voice-demo-mic');
+            if (!micBtn) return;
+            micBtn.classList.toggle('muted', this.isMuted);
+            const micOn = micBtn.querySelector('.mic-on');
+            const micOff = micBtn.querySelector('.mic-off');
+            if (micOn) micOn.style.display = this.isMuted ? 'none' : 'block';
+            if (micOff) micOff.style.display = this.isMuted ? 'block' : 'none';
+        }
+
+        prepareNewSession(reason) {
+            if (reason) {
+                console.log('[VoiceDemo] Preparing new session:', reason);
+            }
+            this.sessionId = null;
+            this.error = null;
+            this.latency = { stt: null, llm: null, tts: null };
+            this.transcript = [];
+            this.setStatus('idle');
+            this.overlay.setAttribute('data-status', 'idle');
+            this.updateStatus('idle', 'Ready to start');
+            this.resetPlayback('session');
+            this.updateTranscript();
+            this.updateLatency();
+            const errorEl = this.overlay.querySelector('.voice-demo-error');
+            if (errorEl) {
+                errorEl.textContent = '';
+            }
+        }
+
+        shouldBargeIn() {
+            if (!this.enableBargeIn) return false;
+            if (this.agentState !== 'speaking' && this.scheduledSources.size === 0) return false;
+
+            const now = performance.now();
+            const speakingFor = this.lastAgentSpeechAt ? now - this.lastAgentSpeechAt : 0;
+            if (speakingFor < this.bargeInMinSpeakingMs) return false;
+
+            if (Number.isFinite(this.bargeInMinLevel) && this.bargeInMinLevel > 0) {
+                if (this.audioLevel < this.bargeInMinLevel) return false;
+            }
+
+            if (this.lastBargeInAt && now - this.lastBargeInAt < this.bargeInCooldownMs) return false;
+
+            this.lastBargeInAt = now;
+            this.ignoreAudioUntil = now + this.bargeInDropMs;
+            return true;
+        }
+
+        resetPlayback(reason) {
+            if (reason) {
+                console.log('[VoiceDemo] Resetting playback:', reason);
+            }
+            this._audioLagWarned = false;
+            this._audioIgnoreLogged = false;
+            this.lastBargeInAt = null;
+            this.ignoreAudioUntil = 0;
+            if (this.scheduledSources.size > 0) {
+                this.scheduledSources.forEach(source => {
+                    try {
+                        source.stop();
+                    } catch (err) {
+                        // noop
+                    }
+                });
+                this.scheduledSources.clear();
+            }
+            if (this.audioContext) {
+                this.playbackTime = this.audioContext.currentTime;
+            } else {
+                this.playbackTime = 0;
+            }
         }
 
         // Visualizer
@@ -881,6 +1082,15 @@
                 binary += String.fromCharCode(bytes[i]);
             }
             return btoa(binary);
+        }
+
+        base64ToArrayBuffer(base64) {
+            const binary = atob(base64);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) {
+                bytes[i] = binary.charCodeAt(i);
+            }
+            return bytes.buffer;
         }
 
         toHex(opacity) {
