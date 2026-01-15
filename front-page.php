@@ -23,8 +23,8 @@ get_header();
             </h1>
 
             <p class="hero-subtitle">
-                Enterprise-grade AI voice agents for contact centers, TPV verification,
-                and customer service. Deploy in minutes, not months.
+                Enterprise-grade AI voice agents custom built for customer service, Third-Party Verification,
+                and contact centers. <br>Crafted for your business.
             </p>
 
             <div class="hero-cta">
