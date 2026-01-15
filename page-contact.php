@@ -97,7 +97,7 @@ get_header();
                             </div>
                             <h3>Email Us Directly</h3>
                             <p>For quick questions or support</p>
-                            <a href="mailto:hello@automatdo.com" class="contact-email-link">hello@automatdo.com</a>
+                            <a href="mailto:info@automatdo.com" class="contact-email-link">info@automatdo.com</a>
                         </div>
 
                         <div class="contact-info-card">
