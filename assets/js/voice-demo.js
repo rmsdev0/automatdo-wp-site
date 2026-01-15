@@ -235,7 +235,7 @@
                                         <line x1="12" y1="19" x2="12" y2="23"/>
                                         <line x1="8" y1="23" x2="16" y2="23"/>
                                     </svg>
-                                    <span>Start Conversation</span>
+                                    <span>Start Live Conversation</span>
                                 </button>
 
                                 <div class="voice-demo-btn-group">
@@ -498,13 +498,14 @@
             // Clear any existing timer
             this.clearAgentIntroTimer();
 
-            // Wait 3 seconds for user to speak, then prompt agent to start
+            // Trigger agent intro immediately (small delay to let connection settle)
+            // The agent should always start with the demo introduction
             this.agentIntroTimer = setTimeout(() => {
-                if (this.status === 'connected' && this.transcript.length === 0) {
-                    console.log('[VoiceDemo] No user speech detected, prompting agent to start conversation');
+                if (this.status === 'connected') {
+                    console.log('[VoiceDemo] Prompting agent to start with demo introduction');
                     this.promptAgentIntro();
                 }
-            }, 3000);
+            }, 500);
         }
 
         clearAgentIntroTimer() {
@@ -634,7 +635,11 @@
                     break;
 
                 case 'transcript':
-                    this.addTranscript(msg.speaker, msg.text, msg.final);
+                    // Skip empty or whitespace-only transcripts
+                    if (msg.text && msg.text.trim()) {
+                        console.log('[VoiceDemo] Transcript:', msg.speaker, msg.final ? '(final)' : '(partial)', JSON.stringify(msg.text));
+                        this.addTranscript(msg.speaker, msg.text, msg.final);
+                    }
                     break;
 
                 case 'latency':
@@ -695,12 +700,21 @@
         }
 
         addTranscript(speaker, text, isFinal = true) {
-            // Update last entry if same speaker and not final
             const last = this.transcript[this.transcript.length - 1];
+            let isUpdate = false;
+
+            // Update existing entry if same speaker and entry isn't finalized yet
             if (last && last.speaker === speaker && !last.final) {
                 last.text = text;
                 last.final = isFinal;
-            } else if (isFinal || !last || last.speaker !== speaker) {
+                isUpdate = true;
+            }
+            // Create new entry only if different speaker or last entry was already final
+            else if (!last || last.speaker !== speaker || last.final) {
+                // Don't create duplicate final entries with same text
+                if (last && last.speaker === speaker && last.text === text) {
+                    return; // Skip duplicate
+                }
                 this.transcript.push({
                     speaker,
                     text,
@@ -708,7 +722,9 @@
                     timestamp: Date.now()
                 });
             }
-            this.updateTranscript();
+
+            // Use smart update to avoid flickering
+            this.updateTranscriptSmart(isUpdate);
         }
 
         sendAudio(buffer) {
@@ -807,6 +823,7 @@
         }
 
         disconnect() {
+            console.log('[VoiceDemo] disconnect() called, stack:', new Error().stack.split('\n').slice(1,4).join(' -> '));
             // Send stop message
             if (this.ws?.readyState === WebSocket.OPEN) {
                 this.ws.send(JSON.stringify({ type: 'stop' }));
@@ -852,6 +869,7 @@
         }
 
         setStatus(status) {
+            console.log('[VoiceDemo] setStatus:', status, 'from:', this.status, 'stack:', new Error().stack.split('\n')[2]);
             this.status = status;
             this.overlay.setAttribute('data-status', status);
         }
@@ -868,7 +886,79 @@
             this.statusEl.querySelector('.voice-demo-status-text').textContent = text;
         }
 
+        updateTranscriptSmart(isUpdate = false) {
+            const container = this.transcriptScroll;
+
+            if (this.transcript.length === 0) {
+                container.innerHTML = `
+                    <div class="voice-demo-transcript-empty">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="empty-icon">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        <span>Your conversation will appear here</span>
+                    </div>
+                `;
+                return;
+            }
+
+            const lastIndex = this.transcript.length - 1;
+            const lastEntry = this.transcript[lastIndex];
+            const existingEntry = container.querySelector(`[data-entry="${lastIndex}"]`);
+
+            if (isUpdate && existingEntry) {
+                // Just update the text of the existing entry (no flicker)
+                const textEl = existingEntry.querySelector('.voice-demo-transcript-text');
+                if (textEl) {
+                    const isLatestAgent = lastEntry.speaker === 'agent' && this.agentState === 'speaking';
+                    const words = this.escapeHtml(lastEntry.text).split(/(\s+)/);
+                    const wordSpans = words.map((word, wordIndex) => {
+                        if (word.trim() === '') return word;
+                        const highlightClass = isLatestAgent ? 'voice-demo-word' : '';
+                        return `<span class="${highlightClass}" data-word="${wordIndex}">${word}</span>`;
+                    }).join('');
+                    textEl.innerHTML = wordSpans;
+                }
+            } else {
+                // Clear empty state if present
+                const emptyState = container.querySelector('.voice-demo-transcript-empty');
+                if (emptyState) {
+                    emptyState.remove();
+                }
+
+                // Remove 'speaking' class from previous entries
+                container.querySelectorAll('.voice-demo-transcript-entry.speaking').forEach(el => {
+                    el.classList.remove('speaking');
+                });
+
+                // Add new entry
+                const isLatestAgent = lastEntry.speaker === 'agent' && this.agentState === 'speaking';
+                const words = this.escapeHtml(lastEntry.text).split(/(\s+)/);
+                const wordSpans = words.map((word, wordIndex) => {
+                    if (word.trim() === '') return word;
+                    const highlightClass = isLatestAgent ? 'voice-demo-word' : '';
+                    return `<span class="${highlightClass}" data-word="${wordIndex}">${word}</span>`;
+                }).join('');
+
+                const entryHtml = `
+                    <div class="voice-demo-transcript-entry ${isLatestAgent ? 'speaking' : ''}" data-entry="${lastIndex}">
+                        <span class="voice-demo-transcript-speaker ${lastEntry.speaker}">${lastEntry.speaker === 'agent' ? 'AI' : 'YOU'}</span>
+                        <span class="voice-demo-transcript-text">${wordSpans}</span>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', entryHtml);
+
+                // Start word highlighting for new agent entries
+                if (isLatestAgent && !this.wordHighlightInterval) {
+                    this.startWordHighlighting();
+                }
+            }
+
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        }
+
         updateTranscript() {
+            // Full re-render (used for reset)
             const container = this.transcriptScroll;
 
             if (this.transcript.length === 0) {
@@ -888,10 +978,9 @@
                     entryIndex === this.transcript.length - 1 &&
                     this.agentState === 'speaking';
 
-                // Split text into words and wrap each in a span for highlighting
                 const words = this.escapeHtml(entry.text).split(/(\s+)/);
                 const wordSpans = words.map((word, wordIndex) => {
-                    if (word.trim() === '') return word; // Keep whitespace as-is
+                    if (word.trim() === '') return word;
                     const highlightClass = isLatestAgent ? 'voice-demo-word' : '';
                     return `<span class="${highlightClass}" data-word="${wordIndex}">${word}</span>`;
                 }).join('');
@@ -904,12 +993,6 @@
                 `;
             }).join('');
 
-            // Start word highlighting animation if agent is speaking
-            if (this.agentState === 'speaking') {
-                this.startWordHighlighting();
-            }
-
-            // Scroll to bottom
             container.scrollTop = container.scrollHeight;
         }
 
@@ -995,9 +1078,7 @@
         }
 
         prepareNewSession(reason) {
-            if (reason) {
-                console.log('[VoiceDemo] Preparing new session:', reason);
-            }
+            console.log('[VoiceDemo] prepareNewSession called:', reason, 'current status:', this.status, 'stack:', new Error().stack.split('\n')[2]);
             this.sessionId = null;
             this.error = null;
             this.latency = { stt: null, llm: null, tts: null };
