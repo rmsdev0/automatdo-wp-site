@@ -1,6 +1,6 @@
 /**
  * Voice Demo Widget Styles
- * LiveKit-style interactive voice agent demo modal
+ * Centered layout with audio bar visualizer, improved transcript, and bottom controls
  */
 
 /* ==========================================================================
@@ -10,9 +10,9 @@
 .voice-demo-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     z-index: 2000;
     display: flex;
     align-items: center;
@@ -40,7 +40,7 @@ body.voice-demo-open {
     position: relative;
     width: 100%;
     height: auto;
-    max-width: 1200px;
+    max-width: 900px;
     max-height: 90vh;
     margin: var(--space-md);
     background: var(--bg-secondary);
@@ -219,55 +219,134 @@ body.voice-demo-open {
 }
 
 /* ==========================================================================
-   Main Content Area
+   Main Content Area - Centered Layout
    ========================================================================== */
 
-.voice-demo-content {
+.voice-demo-content-centered {
     flex: 1;
-    display: grid;
-    grid-template-columns: 1fr 340px;
-    gap: var(--space-lg);
-    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: var(--space-lg) var(--space-lg) var(--space-md);
     overflow-y: auto;
     overflow-x: hidden;
     min-height: 0;
 }
 
-/* ==========================================================================
-   Visualizer Section (Left)
-   ========================================================================== */
-
-.voice-demo-visualizer {
+.voice-demo-main {
+    width: 100%;
+    max-width: 700px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: var(--space-lg);
-    padding: var(--space-md) 0;
+    gap: var(--space-md);
+    flex: 1;
 }
 
-/* Animated Orb */
-.voice-demo-orb-container {
+/* ==========================================================================
+   Audio Bar Visualizer
+   ========================================================================== */
+
+.voice-demo-audio-visualizer {
     position: relative;
-    width: 220px;
-    height: 220px;
-}
-
-.voice-demo-orb {
     width: 100%;
-    height: 100%;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
 
-/* Status indicator below orb */
+.voice-demo-visualizer-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        ellipse 80% 100% at 50% 100%,
+        rgba(212, 165, 48, 0.15) 0%,
+        transparent 70%
+    );
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.voice-demo-overlay[data-status="connected"] .voice-demo-visualizer-glow {
+    opacity: 1;
+}
+
+.voice-demo-overlay:not([data-status="connected"]) .voice-demo-visualizer-glow {
+    opacity: 0.3;
+}
+
+.voice-demo-bars-container {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 4px;
+    height: 100%;
+    padding: var(--space-sm) 0;
+}
+
+.voice-demo-bar {
+    --bar-height: 20%;
+    width: 6px;
+    height: var(--bar-height);
+    min-height: 8px;
+    background: linear-gradient(
+        to top,
+        var(--accent-primary) 0%,
+        var(--accent-light) 100%
+    );
+    border-radius: 3px;
+    transition: height 0.08s ease-out;
+    opacity: 0.6;
+}
+
+/* State-based bar colors */
+.voice-demo-bars-container[data-state="listening"] .voice-demo-bar {
+    background: linear-gradient(
+        to top,
+        #22c55e 0%,
+        #4ade80 100%
+    );
+    opacity: 0.85;
+}
+
+.voice-demo-bars-container[data-state="thinking"] .voice-demo-bar {
+    background: linear-gradient(
+        to top,
+        var(--accent-primary) 0%,
+        var(--accent-light) 100%
+    );
+    opacity: 0.85;
+    animation: bar-pulse 0.8s ease-in-out infinite alternate;
+}
+
+.voice-demo-bars-container[data-state="speaking"] .voice-demo-bar {
+    background: linear-gradient(
+        to top,
+        #3b82f6 0%,
+        #60a5fa 100%
+    );
+    opacity: 0.9;
+}
+
+@keyframes bar-pulse {
+    0% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+/* Status indicator */
 .voice-demo-status {
     display: flex;
     align-items: center;
     gap: var(--space-sm);
     font-family: var(--font-mono, 'SF Mono', 'Consolas', monospace);
     font-size: 0.75rem;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--text-muted);
+    flex-shrink: 0;
 }
 
 .voice-demo-status-dot {
@@ -275,12 +354,12 @@ body.voice-demo-open {
     height: 8px;
     border-radius: 50%;
     background: var(--text-muted);
-    transition: background var(--transition-fast);
+    transition: background var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .voice-demo-status[data-state="listening"] .voice-demo-status-dot {
     background: #22c55e;
-    box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
 }
 
 .voice-demo-status[data-state="thinking"] .voice-demo-status-dot {
@@ -290,14 +369,232 @@ body.voice-demo-open {
 
 .voice-demo-status[data-state="speaking"] .voice-demo-status-dot {
     background: #3b82f6;
-    box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
 }
 
-/* Control Buttons */
-.voice-demo-controls {
+/* ==========================================================================
+   Transcript Panel - Improved Design
+   ========================================================================== */
+
+.voice-demo-transcript-panel {
+    width: 100%;
+    flex: 1;
+    min-height: 200px;
+    max-height: 340px;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(
+        180deg,
+        var(--bg-tertiary) 0%,
+        rgba(24, 24, 27, 0.8) 100%
+    );
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.voice-demo-transcript-header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    padding: var(--space-sm) var(--space-md);
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+}
+
+.voice-demo-transcript-label {
+    font-family: var(--font-mono, 'SF Mono', 'Consolas', monospace);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.voice-demo-transcript-indicator {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.voice-demo-transcript-indicator .indicator-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    transition: all 0.3s ease;
+}
+
+.voice-demo-overlay[data-status="connected"] .voice-demo-transcript-indicator .indicator-dot {
+    background: #22c55e;
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+    animation: indicator-pulse 2s ease-in-out infinite;
+}
+
+@keyframes indicator-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.voice-demo-transcript-panel .voice-demo-transcript-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-md) var(--space-lg);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-medium) transparent;
+}
+
+.voice-demo-transcript-panel .voice-demo-transcript-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.voice-demo-transcript-panel .voice-demo-transcript-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.voice-demo-transcript-panel .voice-demo-transcript-scroll::-webkit-scrollbar-thumb {
+    background: var(--border-medium);
+    border-radius: 3px;
+}
+
+.voice-demo-transcript-panel .voice-demo-transcript-scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--border-strong);
+}
+
+/* Empty state */
+.voice-demo-transcript-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     gap: var(--space-md);
+    height: 100%;
+    min-height: 120px;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.voice-demo-transcript-empty .empty-icon {
+    width: 40px;
+    height: 40px;
+    opacity: 0.4;
+}
+
+.voice-demo-transcript-empty span {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    opacity: 0.7;
+}
+
+/* Transcript entries */
+.voice-demo-transcript-entry {
+    display: flex;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+    animation: entry-fade-in 0.3s ease-out;
+}
+
+@keyframes entry-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.voice-demo-transcript-entry:last-child {
+    margin-bottom: 0;
+}
+
+.voice-demo-transcript-speaker {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono, 'SF Mono', 'Consolas', monospace);
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    margin-top: 2px;
+}
+
+.voice-demo-transcript-speaker.agent {
+    background: linear-gradient(135deg, rgba(212, 165, 48, 0.2) 0%, rgba(212, 165, 48, 0.1) 100%);
+    color: var(--accent-primary);
+    border: 1px solid rgba(212, 165, 48, 0.3);
+}
+
+.voice-demo-transcript-speaker.user {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-subtle);
+}
+
+.voice-demo-transcript-text {
+    flex: 1;
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: var(--text-primary);
+}
+
+/* Speaking entry highlight */
+.voice-demo-transcript-entry.speaking {
+    position: relative;
+}
+
+.voice-demo-transcript-entry.speaking .voice-demo-transcript-speaker.agent {
+    animation: speaker-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes speaker-glow {
+    0%, 100% {
+        box-shadow: 0 0 0 rgba(212, 165, 48, 0);
+    }
+    50% {
+        box-shadow: 0 0 12px rgba(212, 165, 48, 0.4);
+    }
+}
+
+/* ==========================================================================
+   Word-by-Word Highlighting
+   ========================================================================== */
+
+.voice-demo-word {
+    color: var(--text-muted);
+    transition: color 0.15s ease, text-shadow 0.15s ease;
+}
+
+.voice-demo-word.highlighted {
+    color: var(--accent-primary);
+    text-shadow: 0 0 8px rgba(212, 165, 48, 0.4);
+}
+
+.voice-demo-word.spoken {
+    color: var(--text-primary);
+}
+
+/* ==========================================================================
+   Bottom Controls
+   ========================================================================== */
+
+.voice-demo-controls-bottom {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-md) 0 var(--space-sm);
+    flex-shrink: 0;
+    border-top: 1px solid var(--border-subtle);
+    margin-top: var(--space-sm);
 }
 
 .voice-demo-start {
@@ -305,7 +602,7 @@ body.voice-demo-open {
     align-items: center;
     justify-content: center;
     gap: var(--space-sm);
-    padding: var(--space-md) var(--space-xl);
+    padding: var(--space-md) var(--space-2xl);
     font-size: 0.9375rem;
     font-weight: 600;
     color: var(--bg-primary);
@@ -335,7 +632,7 @@ body.voice-demo-open {
 .voice-demo-btn-group {
     display: none;
     align-items: center;
-    gap: var(--space-md);
+    gap: var(--space-lg);
 }
 
 .voice-demo-overlay[data-status="connected"] .voice-demo-start {
@@ -367,7 +664,8 @@ body.voice-demo-open {
 
 .voice-demo-mic:hover {
     background: var(--bg-elevated);
-    border-color: var(--accent-primary);
+    border-color: #22c55e;
+    color: #22c55e;
 }
 
 .voice-demo-mic.muted {
@@ -377,194 +675,20 @@ body.voice-demo-open {
 }
 
 .voice-demo-end {
-    background: rgba(239, 68, 68, 0.15);
-    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.5);
     color: #ef4444;
 }
 
 .voice-demo-end:hover {
-    background: rgba(239, 68, 68, 0.25);
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
 }
 
 .voice-demo-mic svg,
 .voice-demo-end svg {
     width: 24px;
     height: 24px;
-}
-
-/* ==========================================================================
-   Info Panel (Right)
-   ========================================================================== */
-
-.voice-demo-panel {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-md);
-    padding-left: var(--space-lg);
-    border-left: 1px solid var(--border-subtle);
-    overflow-y: auto;
-    overflow-x: hidden;
-    min-height: 0;
-}
-
-/* Panel section header */
-.voice-demo-panel-header {
-    font-family: var(--font-mono, 'SF Mono', 'Consolas', monospace);
-    font-size: 0.625rem;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    margin-bottom: var(--space-sm);
-}
-
-/* Config Section */
-.voice-demo-config {
-    font-family: var(--font-mono, 'SF Mono', 'Consolas', monospace);
-    font-size: 0.75rem;
-}
-
-.voice-demo-config-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 0;
-}
-
-.voice-demo-config-label {
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.voice-demo-config-label.indent {
-    padding-left: var(--space-md);
-    font-size: 0.6875rem;
-}
-
-.voice-demo-config-value {
-    color: var(--accent-primary);
-    font-weight: 500;
-}
-
-/* Enhancements Section */
-.voice-demo-enhancements {
-    padding-top: var(--space-md);
-    border-top: 1px solid var(--border-subtle);
-}
-
-.voice-demo-enhancement-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 0;
-    font-family: var(--font-mono, 'SF Mono', 'Consolas', monospace);
-    font-size: 0.75rem;
-}
-
-.voice-demo-enhancement-label {
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.voice-demo-enhancement-value {
-    color: #22c55e;
-    font-weight: 500;
-}
-
-/* Latency Section */
-.voice-demo-latency {
-    padding-top: var(--space-md);
-    border-top: 1px solid var(--border-subtle);
-}
-
-.voice-demo-latency-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 0;
-    font-family: var(--font-mono, 'SF Mono', 'Consolas', monospace);
-    font-size: 0.75rem;
-}
-
-.voice-demo-latency-label {
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.voice-demo-latency-value {
-    color: var(--accent-primary);
-    font-weight: 500;
-}
-
-.voice-demo-latency-value.pending {
-    color: var(--text-muted);
-}
-
-/* Transcript Section */
-.voice-demo-transcript {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding-top: var(--space-md);
-    border-top: 1px solid var(--border-subtle);
-    overflow: hidden;
-    min-height: 120px;
-    max-height: 200px;
-}
-
-.voice-demo-transcript-scroll {
-    flex: 1;
-    overflow-y: auto;
-    padding-right: var(--space-sm);
-    scrollbar-width: thin;
-    scrollbar-color: var(--border-medium) transparent;
-}
-
-.voice-demo-transcript-scroll::-webkit-scrollbar {
-    width: 4px;
-}
-
-.voice-demo-transcript-scroll::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.voice-demo-transcript-scroll::-webkit-scrollbar-thumb {
-    background: var(--border-medium);
-    border-radius: 2px;
-}
-
-.voice-demo-transcript-empty {
-    font-family: var(--font-mono, 'SF Mono', 'Consolas', monospace);
-    font-size: 0.75rem;
-    font-style: italic;
-    color: var(--text-muted);
-}
-
-.voice-demo-transcript-entry {
-    margin-bottom: var(--space-md);
-    font-family: var(--font-mono, 'SF Mono', 'Consolas', monospace);
-    font-size: 0.75rem;
-    line-height: 1.5;
-}
-
-.voice-demo-transcript-speaker {
-    font-weight: 700;
-    margin-right: var(--space-sm);
-}
-
-.voice-demo-transcript-speaker.agent {
-    color: var(--accent-primary);
-}
-
-.voice-demo-transcript-speaker.user {
-    color: var(--text-primary);
-}
-
-.voice-demo-transcript-text {
-    color: var(--text-secondary);
 }
 
 /* ==========================================================================
@@ -592,6 +716,7 @@ body.voice-demo-open {
 
 .voice-demo-error {
     display: none;
+    width: 100%;
     padding: var(--space-md);
     background: rgba(239, 68, 68, 0.1);
     border: 1px solid rgba(239, 68, 68, 0.3);
@@ -609,31 +734,12 @@ body.voice-demo-open {
    Responsive
    ========================================================================== */
 
-@media (max-width: 1024px) {
-    .voice-demo-content {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto 1fr;
-    }
-
-    .voice-demo-panel {
-        padding-left: 0;
-        padding-top: var(--space-lg);
-        border-left: none;
-        border-top: 1px solid var(--border-subtle);
-        max-height: 300px;
-    }
-
-    .voice-demo-orb-container {
-        width: 200px;
-        height: 200px;
-    }
-}
-
 @media (max-width: 768px) {
     .voice-demo-modal {
         margin: 0;
         border-radius: 0;
         max-height: none;
+        height: 100%;
     }
 
     .voice-demo-tabs {
@@ -641,7 +747,7 @@ body.voice-demo-open {
     }
 
     .voice-demo-tab {
-        min-width: 140px;
+        min-width: 120px;
         padding: var(--space-sm) var(--space-md);
     }
 
@@ -653,14 +759,51 @@ body.voice-demo-open {
         display: none;
     }
 
-    .voice-demo-content {
+    .voice-demo-content-centered {
         padding: var(--space-md);
-        gap: var(--space-md);
     }
 
-    .voice-demo-orb-container {
-        width: 160px;
-        height: 160px;
+    .voice-demo-audio-visualizer {
+        height: 80px;
+    }
+
+    .voice-demo-bar {
+        width: 4px;
+    }
+
+    .voice-demo-bars-container {
+        gap: 3px;
+    }
+
+    .voice-demo-transcript-panel {
+        min-height: 180px;
+        max-height: 300px;
+    }
+
+    .voice-demo-transcript-panel .voice-demo-transcript-scroll {
+        padding: var(--space-sm) var(--space-md);
+    }
+
+    .voice-demo-transcript-text {
+        font-size: 0.875rem;
+    }
+
+    .voice-demo-transcript-speaker {
+        width: 28px;
+        height: 28px;
+        font-size: 0.5625rem;
+    }
+
+    .voice-demo-mic,
+    .voice-demo-end {
+        width: 50px;
+        height: 50px;
+    }
+
+    .voice-demo-mic svg,
+    .voice-demo-end svg {
+        width: 20px;
+        height: 20px;
     }
 }
 
@@ -679,6 +822,27 @@ body.voice-demo-open {
     .voice-demo-tab {
         min-width: 100px;
     }
+
+    .voice-demo-audio-visualizer {
+        height: 70px;
+    }
+
+    .voice-demo-bar {
+        width: 3px;
+    }
+
+    .voice-demo-bars-container {
+        gap: 2px;
+    }
+
+    .voice-demo-start {
+        padding: var(--space-sm) var(--space-xl);
+        font-size: 0.875rem;
+    }
+
+    .voice-demo-btn-group {
+        gap: var(--space-md);
+    }
 }
 
 /* ==========================================================================
@@ -686,7 +850,7 @@ body.voice-demo-open {
    ========================================================================== */
 
 [data-theme="light"] .voice-demo-overlay {
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
 }
 
 [data-theme="light"] .voice-demo-modal {
@@ -700,6 +864,22 @@ body.voice-demo-open {
 
 [data-theme="light"] .voice-demo-start {
     color: white;
+}
+
+[data-theme="light"] .voice-demo-transcript-panel {
+    background: linear-gradient(
+        180deg,
+        var(--bg-secondary) 0%,
+        var(--bg-primary) 100%
+    );
+}
+
+[data-theme="light"] .voice-demo-word {
+    color: var(--text-tertiary);
+}
+
+[data-theme="light"] .voice-demo-word.spoken {
+    color: var(--text-primary);
 }
 
 /* ==========================================================================
@@ -721,7 +901,10 @@ body.voice-demo-open {
 @media (prefers-reduced-motion: reduce) {
     .voice-demo-overlay,
     .voice-demo-modal,
-    .voice-demo-status-dot {
+    .voice-demo-status-dot,
+    .voice-demo-bar,
+    .voice-demo-word,
+    .voice-demo-transcript-entry {
         transition: none;
         animation: none;
     }

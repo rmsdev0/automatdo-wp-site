@@ -130,7 +130,7 @@
                 : 500;
             this.bargeInDropMs = Number.isFinite(this.config.bargeInDropMs)
                 ? this.config.bargeInDropMs
-                : this.bargeInCooldownMs;
+                : 1200;
 
             this.init();
         }
@@ -150,14 +150,17 @@
 
             // Cache DOM references
             this.modal = this.overlay.querySelector('.voice-demo-modal');
-            this.canvas = this.overlay.querySelector('.voice-demo-orb');
-            this.ctx = this.canvas.getContext('2d');
+            this.barsContainer = this.overlay.querySelector('.voice-demo-bars-container');
+            this.bars = this.overlay.querySelectorAll('.voice-demo-bar');
             this.statusEl = this.overlay.querySelector('.voice-demo-status');
             this.transcriptScroll = this.overlay.querySelector('.voice-demo-transcript-scroll');
+
+            // Initialize bar heights array for smooth animation
+            this.barHeights = new Array(this.bars.length).fill(15);
+            this.targetHeights = new Array(this.bars.length).fill(15);
         }
 
         getModalHTML() {
-            const config = DEFAULT_CONFIGS[this.selectedProvider];
             return `
                 <div class="voice-demo-modal">
                     <button class="voice-demo-close" aria-label="Close demo">
@@ -188,10 +191,14 @@
                         `).join('')}
                     </div>
 
-                    <div class="voice-demo-content">
-                        <div class="voice-demo-visualizer">
-                            <div class="voice-demo-orb-container">
-                                <canvas class="voice-demo-orb" width="440" height="440"></canvas>
+                    <div class="voice-demo-content-centered">
+                        <div class="voice-demo-main">
+                            <!-- Audio Bar Visualizer -->
+                            <div class="voice-demo-audio-visualizer">
+                                <div class="voice-demo-bars-container">
+                                    ${Array.from({length: 32}, (_, i) => `<span class="voice-demo-bar" data-bar="${i}"></span>`).join('')}
+                                </div>
+                                <div class="voice-demo-visualizer-glow"></div>
                             </div>
 
                             <div class="voice-demo-status" data-state="idle">
@@ -199,7 +206,28 @@
                                 <span class="voice-demo-status-text">Ready to start</span>
                             </div>
 
-                            <div class="voice-demo-controls">
+                            <!-- Transcript Section -->
+                            <div class="voice-demo-transcript-panel">
+                                <div class="voice-demo-transcript-header">
+                                    <span class="voice-demo-transcript-label">Live Transcript</span>
+                                    <span class="voice-demo-transcript-indicator">
+                                        <span class="indicator-dot"></span>
+                                    </span>
+                                </div>
+                                <div class="voice-demo-transcript-scroll">
+                                    <div class="voice-demo-transcript-empty">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="empty-icon">
+                                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                        </svg>
+                                        <span>Your conversation will appear here</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="voice-demo-error"></div>
+
+                            <!-- Controls at Bottom -->
+                            <div class="voice-demo-controls-bottom">
                                 <button class="voice-demo-start">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
@@ -232,77 +260,6 @@
                                             <line x1="1" y1="1" x2="23" y2="23"/>
                                         </svg>
                                     </button>
-                                </div>
-                            </div>
-
-                            <div class="voice-demo-error"></div>
-                        </div>
-
-                        <div class="voice-demo-panel">
-                            <div class="voice-demo-config">
-                                <div class="voice-demo-panel-header">Agent Configuration</div>
-                                <div class="voice-demo-config-row">
-                                    <span class="voice-demo-config-label">VAD</span>
-                                    <span class="voice-demo-config-value" data-config="vad">${config.vad}</span>
-                                </div>
-                                <div class="voice-demo-config-row">
-                                    <span class="voice-demo-config-label">Speech-to-text</span>
-                                    <span class="voice-demo-config-value" data-config="stt">${config.stt}</span>
-                                </div>
-                                <div class="voice-demo-config-row">
-                                    <span class="voice-demo-config-label indent">model</span>
-                                    <span class="voice-demo-config-value" data-config="sttModel">${config.sttModel}</span>
-                                </div>
-                                <div class="voice-demo-config-row">
-                                    <span class="voice-demo-config-label">LLM</span>
-                                    <span class="voice-demo-config-value" data-config="llm">${config.llm}</span>
-                                </div>
-                                <div class="voice-demo-config-row">
-                                    <span class="voice-demo-config-label indent">model</span>
-                                    <span class="voice-demo-config-value" data-config="llmModel">${config.llmModel}</span>
-                                </div>
-                                <div class="voice-demo-config-row">
-                                    <span class="voice-demo-config-label">Text-to-speech</span>
-                                    <span class="voice-demo-config-value" data-config="tts">${config.tts}</span>
-                                </div>
-                                <div class="voice-demo-config-row">
-                                    <span class="voice-demo-config-label indent">model</span>
-                                    <span class="voice-demo-config-value" data-config="ttsModel">${config.ttsModel}</span>
-                                </div>
-                            </div>
-
-                            <div class="voice-demo-enhancements">
-                                <div class="voice-demo-panel-header">Enhancements</div>
-                                <div class="voice-demo-enhancement-row">
-                                    <span class="voice-demo-enhancement-label">Turn detection</span>
-                                    <span class="voice-demo-enhancement-value">TRUE</span>
-                                </div>
-                                <div class="voice-demo-enhancement-row">
-                                    <span class="voice-demo-enhancement-label">Noise cancellation</span>
-                                    <span class="voice-demo-enhancement-value">TRUE</span>
-                                </div>
-                            </div>
-
-                            <div class="voice-demo-latency">
-                                <div class="voice-demo-panel-header">Latency</div>
-                                <div class="voice-demo-latency-row">
-                                    <span class="voice-demo-latency-label">Speech-to-text</span>
-                                    <span class="voice-demo-latency-value pending" data-metric="stt">—</span>
-                                </div>
-                                <div class="voice-demo-latency-row">
-                                    <span class="voice-demo-latency-label">LLM</span>
-                                    <span class="voice-demo-latency-value pending" data-metric="llm">—</span>
-                                </div>
-                                <div class="voice-demo-latency-row">
-                                    <span class="voice-demo-latency-label">Text-to-speech</span>
-                                    <span class="voice-demo-latency-value pending" data-metric="tts">—</span>
-                                </div>
-                            </div>
-
-                            <div class="voice-demo-transcript">
-                                <div class="voice-demo-panel-header">Transcription</div>
-                                <div class="voice-demo-transcript-scroll">
-                                    <p class="voice-demo-transcript-empty">Conversation will appear here...</p>
                                 </div>
                             </div>
                         </div>
@@ -386,6 +343,7 @@
             this.isMuted = false;
             this.updateMicUI();
             this.resetPlayback('reset');
+            this.stopWordHighlighting();
             this.overlay.querySelectorAll('.voice-demo-tab').forEach(tab => {
                 tab.disabled = false;
             });
@@ -397,7 +355,6 @@
                 errorEl.textContent = '';
             }
             this.updateTranscript();
-            this.updateLatency();
         }
 
         selectProvider(providerId) {
@@ -527,10 +484,41 @@
                 this.setStatus('connected');
                 this.updateStatus('listening', 'Listening...');
 
+                // Start agent intro timer - if user doesn't speak within a few seconds, prompt the agent
+                this.startAgentIntroTimer();
+
             } catch (err) {
                 console.error('Voice demo connection error:', err);
                 this.setError(err.message || 'Failed to connect');
                 this.cleanup();
+            }
+        }
+
+        startAgentIntroTimer() {
+            // Clear any existing timer
+            this.clearAgentIntroTimer();
+
+            // Wait 3 seconds for user to speak, then prompt agent to start
+            this.agentIntroTimer = setTimeout(() => {
+                if (this.status === 'connected' && this.transcript.length === 0) {
+                    console.log('[VoiceDemo] No user speech detected, prompting agent to start conversation');
+                    this.promptAgentIntro();
+                }
+            }, 3000);
+        }
+
+        clearAgentIntroTimer() {
+            if (this.agentIntroTimer) {
+                clearTimeout(this.agentIntroTimer);
+                this.agentIntroTimer = null;
+            }
+        }
+
+        promptAgentIntro() {
+            if (this.ws?.readyState === WebSocket.OPEN) {
+                this.ws.send(JSON.stringify({
+                    type: 'prompt_intro'
+                }));
             }
         }
 
@@ -663,6 +651,8 @@
                     break;
 
                 case 'user_speech_started':
+                    // User started speaking, cancel agent intro timer
+                    this.clearAgentIntroTimer();
                     if (this.shouldBargeIn()) {
                         this.resetPlayback('interrupt');
                     }
@@ -681,10 +671,19 @@
         setAgentState(state) {
             const prevState = this.agentState;
             this.agentState = state;
+
+            // Clear intro timer once agent starts responding
+            if (state === 'thinking' || state === 'speaking') {
+                this.clearAgentIntroTimer();
+            }
+
             if (state === 'speaking' && prevState !== 'speaking') {
                 this.lastAgentSpeechAt = performance.now();
+                // Trigger word highlighting for current transcript
+                this.startWordHighlighting();
             } else if (state !== 'speaking') {
                 this.lastAgentSpeechAt = null;
+                this.stopWordHighlighting();
             }
             const statusTexts = {
                 idle: 'Ready',
@@ -828,6 +827,8 @@
 
         cleanup() {
             this.resetPlayback('cleanup');
+            this.stopWordHighlighting();
+            this.clearAgentIntroTimer();
 
             // Close WebSocket
             if (this.ws) {
@@ -871,19 +872,100 @@
             const container = this.transcriptScroll;
 
             if (this.transcript.length === 0) {
-                container.innerHTML = '<p class="voice-demo-transcript-empty">Conversation will appear here...</p>';
+                container.innerHTML = `
+                    <div class="voice-demo-transcript-empty">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="empty-icon">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        <span>Your conversation will appear here</span>
+                    </div>
+                `;
                 return;
             }
 
-            container.innerHTML = this.transcript.map(entry => `
-                <div class="voice-demo-transcript-entry">
-                    <span class="voice-demo-transcript-speaker ${entry.speaker}">${entry.speaker === 'agent' ? 'AGENT:' : 'YOU:'}</span>
-                    <span class="voice-demo-transcript-text">${this.escapeHtml(entry.text)}</span>
-                </div>
-            `).join('');
+            container.innerHTML = this.transcript.map((entry, entryIndex) => {
+                const isLatestAgent = entry.speaker === 'agent' &&
+                    entryIndex === this.transcript.length - 1 &&
+                    this.agentState === 'speaking';
+
+                // Split text into words and wrap each in a span for highlighting
+                const words = this.escapeHtml(entry.text).split(/(\s+)/);
+                const wordSpans = words.map((word, wordIndex) => {
+                    if (word.trim() === '') return word; // Keep whitespace as-is
+                    const highlightClass = isLatestAgent ? 'voice-demo-word' : '';
+                    return `<span class="${highlightClass}" data-word="${wordIndex}">${word}</span>`;
+                }).join('');
+
+                return `
+                    <div class="voice-demo-transcript-entry ${isLatestAgent ? 'speaking' : ''}" data-entry="${entryIndex}">
+                        <span class="voice-demo-transcript-speaker ${entry.speaker}">${entry.speaker === 'agent' ? 'AI' : 'YOU'}</span>
+                        <span class="voice-demo-transcript-text">${wordSpans}</span>
+                    </div>
+                `;
+            }).join('');
+
+            // Start word highlighting animation if agent is speaking
+            if (this.agentState === 'speaking') {
+                this.startWordHighlighting();
+            }
 
             // Scroll to bottom
             container.scrollTop = container.scrollHeight;
+        }
+
+        startWordHighlighting() {
+            // Cancel any existing highlighting
+            if (this.wordHighlightInterval) {
+                clearInterval(this.wordHighlightInterval);
+            }
+
+            const speakingEntry = this.transcriptScroll.querySelector('.voice-demo-transcript-entry.speaking');
+            if (!speakingEntry) return;
+
+            const words = speakingEntry.querySelectorAll('.voice-demo-word');
+            if (!words.length) return;
+
+            let currentWordIndex = 0;
+            const wordsPerSecond = 3; // Approximate speaking rate
+
+            // Highlight first word immediately
+            words[0]?.classList.add('highlighted');
+
+            this.wordHighlightInterval = setInterval(() => {
+                // Check if still speaking
+                if (this.agentState !== 'speaking') {
+                    clearInterval(this.wordHighlightInterval);
+                    this.wordHighlightInterval = null;
+                    // Mark all words as spoken
+                    words.forEach(w => {
+                        w.classList.remove('highlighted');
+                        w.classList.add('spoken');
+                    });
+                    return;
+                }
+
+                // Mark previous word as spoken, highlight next
+                if (currentWordIndex < words.length) {
+                    words[currentWordIndex]?.classList.remove('highlighted');
+                    words[currentWordIndex]?.classList.add('spoken');
+                }
+
+                currentWordIndex++;
+
+                if (currentWordIndex < words.length) {
+                    words[currentWordIndex]?.classList.add('highlighted');
+                } else {
+                    clearInterval(this.wordHighlightInterval);
+                    this.wordHighlightInterval = null;
+                }
+            }, 1000 / wordsPerSecond);
+        }
+
+        stopWordHighlighting() {
+            if (this.wordHighlightInterval) {
+                clearInterval(this.wordHighlightInterval);
+                this.wordHighlightInterval = null;
+            }
         }
 
         updateLatency() {
@@ -924,8 +1006,8 @@
             this.overlay.setAttribute('data-status', 'idle');
             this.updateStatus('idle', 'Ready to start');
             this.resetPlayback('session');
+            this.stopWordHighlighting();
             this.updateTranscript();
-            this.updateLatency();
             const errorEl = this.overlay.querySelector('.voice-demo-error');
             if (errorEl) {
                 errorEl.textContent = '';
@@ -981,7 +1063,7 @@
             if (this.animationFrame) return;
 
             const draw = () => {
-                this.drawOrb();
+                this.drawBars();
                 this.animationFrame = requestAnimationFrame(draw);
             };
             draw();
@@ -994,84 +1076,52 @@
             }
         }
 
-        drawOrb() {
-            const canvas = this.canvas;
-            const ctx = this.ctx;
-            const size = 220;
-            const dpr = window.devicePixelRatio || 1;
-
-            // Ensure canvas size
-            if (canvas.width !== size * dpr) {
-                canvas.width = size * dpr;
-                canvas.height = size * dpr;
-                canvas.style.width = size + 'px';
-                canvas.style.height = size + 'px';
-                ctx.scale(dpr, dpr);
-            }
-
-            ctx.clearRect(0, 0, size, size);
-
-            const centerX = size / 2;
-            const centerY = size / 2;
+        drawBars() {
+            if (!this.bars || !this.bars.length) return;
 
             // Smooth audio level
             this.smoothLevel += (this.audioLevel - this.smoothLevel) * 0.15;
             const level = this.status === 'connected' ? this.smoothLevel : 0;
 
-            // Determine colors based on state
-            let color;
-            switch (this.agentState) {
-                case 'listening':
-                    color = '#22c55e'; // Green
-                    break;
-                case 'thinking':
-                    color = '#d4a530'; // Gold
-                    break;
-                case 'speaking':
-                    color = '#3b82f6'; // Blue
-                    break;
-                default:
-                    color = this.status === 'connected' ? '#d4a530' : '#666666';
+            // Determine state for color class
+            const stateClass = this.agentState || 'idle';
+            if (this.barsContainer) {
+                this.barsContainer.setAttribute('data-state', stateClass);
             }
 
-            // Pulse speed
-            const pulseSpeed = this.agentState === 'thinking' ? 0.05 : 0.02;
+            // Calculate target heights based on audio level and state
+            const numBars = this.bars.length;
+            const time = performance.now() / 1000;
 
-            // Draw layers
-            const layers = [
-                { radius: 35, opacity: 0.9 },
-                { radius: 50, opacity: 0.6 },
-                { radius: 65, opacity: 0.4 },
-                { radius: 80, opacity: 0.2 }
-            ];
+            for (let i = 0; i < numBars; i++) {
+                // Create wave-like pattern from center
+                const centerOffset = Math.abs(i - numBars / 2) / (numBars / 2);
+                const wavePhase = time * 3 + i * 0.3;
 
-            layers.forEach((layer, i) => {
-                const scale = 1 + level * 0.5;
-                const radius = layer.radius * scale;
+                let targetHeight;
 
-                // Gradient
-                const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
-                gradient.addColorStop(0, color + this.toHex(layer.opacity));
-                gradient.addColorStop(0.7, color + '40');
-                gradient.addColorStop(1, color + '00');
-
-                // Organic blob shape
-                ctx.beginPath();
-                const points = 60;
-                for (let j = 0; j <= points; j++) {
-                    const angle = (j / points) * Math.PI * 2;
-                    const noise = Math.sin(angle * 3 + this.orbOffset + i) * 8 * (1 + level);
-                    const r = radius + noise;
-                    const x = centerX + Math.cos(angle) * r;
-                    const y = centerY + Math.sin(angle) * r;
-                    j === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                if (this.status === 'connected' && level > 0.01) {
+                    // Active audio - dynamic height based on level
+                    const baseHeight = 20 + (1 - centerOffset) * 30;
+                    const audioResponse = level * 50 * (1 - centerOffset * 0.5);
+                    const waveOffset = Math.sin(wavePhase) * 15 * level;
+                    targetHeight = baseHeight + audioResponse + waveOffset;
+                } else if (this.status === 'connected') {
+                    // Connected but quiet - gentle idle animation
+                    const idleWave = Math.sin(wavePhase * 0.5) * 8;
+                    targetHeight = 20 + (1 - centerOffset) * 15 + idleWave;
+                } else {
+                    // Not connected - minimal static heights
+                    targetHeight = 15 + (1 - centerOffset) * 10;
                 }
-                ctx.closePath();
-                ctx.fillStyle = gradient;
-                ctx.fill();
-            });
 
-            this.orbOffset += pulseSpeed;
+                // Smooth transition to target
+                this.barHeights[i] += (targetHeight - this.barHeights[i]) * 0.2;
+
+                // Apply height to bar
+                const height = Math.max(8, Math.min(95, this.barHeights[i]));
+                this.bars[i].style.setProperty('--bar-height', `${height}%`);
+            }
         }
 
         // Utilities
