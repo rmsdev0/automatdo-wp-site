@@ -66,6 +66,51 @@
         }
     };
 
+    // Voice options per provider
+    const VOICES = {
+        openai: [
+            { id: 'alloy', name: 'Alloy', description: 'Neutral & balanced' },
+            { id: 'ash', name: 'Ash', description: 'Soft & thoughtful' },
+            { id: 'ballad', name: 'Ballad', description: 'Warm & expressive' },
+            { id: 'coral', name: 'Coral', description: 'Clear & friendly' },
+            { id: 'echo', name: 'Echo', description: 'Calm & composed' },
+            { id: 'sage', name: 'Sage', description: 'Wise & measured' },
+            { id: 'shimmer', name: 'Shimmer', description: 'Bright & energetic' },
+            { id: 'verse', name: 'Verse', description: 'Dynamic & engaging' }
+        ],
+        xai: [
+            { id: 'Charon', name: 'Charon', description: 'Deep & authoritative' },
+            { id: 'Clio', name: 'Clio', description: 'Warm & welcoming' },
+            { id: 'Puck', name: 'Puck', description: 'Playful & energetic' },
+            { id: 'Sage', name: 'Sage', description: 'Calm & professional' },
+            { id: 'Sol', name: 'Sol', description: 'Bright & optimistic' },
+            { id: 'Vale', name: 'Vale', description: 'Gentle & soothing' }
+        ]
+    };
+
+    // Default voices per agent per provider
+    const AGENT_DEFAULT_VOICES = {
+        tpv: { openai: 'alloy', xai: 'Charon' },
+        fitness: { openai: 'shimmer', xai: 'Clio' },
+        'home-services': { openai: 'echo', xai: 'Puck' },
+        'contact-center': { openai: 'sage', xai: 'Sage' }
+    };
+
+    // Introduction modes
+    const INTRO_MODES = [
+        { id: 'full', name: 'Full', description: 'Complete introduction with all features' },
+        { id: 'brief', name: 'Brief', description: 'Quick greeting and prompt' },
+        { id: 'none', name: 'None', description: 'Agent waits for you to speak' }
+    ];
+
+    // localStorage key for settings
+    const STORAGE_KEY = 'automatdo_voice_demo_settings';
+    const EXIT_CTA_SESSION_KEY = 'automatdo_exit_cta_shown';
+
+    // Engagement thresholds for showing exit CTA
+    const MIN_ENGAGEMENT_SECONDS = 10; // Must have demo open for at least 10 seconds
+    const MIN_TRANSCRIPT_LENGTH = 1; // Must have at least 1 transcript entry
+
     const CONNECT_TIMEOUT_MS = 10000;
     const SESSION_TIMEOUT_MS = 10000;
     const MAX_PLAYBACK_LAG_SEC = 12;
@@ -77,9 +122,15 @@
             this.agentState = 'idle'; // idle, listening, thinking, speaking
             this.selectedAgent = 'fitness';
             this.selectedProvider = 'openai'; // 'openai' or 'xai'
+            this.selectedVoice = null; // null = use agent default
+            this.introMode = 'full'; // 'full', 'brief', 'none'
             this.transcript = [];
             this.isMuted = false;
             this.error = null;
+            this.settingsOpen = false;
+
+            // Load saved settings from localStorage
+            this.loadSettings();
 
             // WebSocket
             this.ws = null;
@@ -111,6 +162,12 @@
                 llm: null,
                 tts: null
             };
+
+            // Exit intent CTA tracking
+            this.exitCtaShown = false;
+            this.exitCtaOpen = false;
+            this.demoOpenedAt = null;
+            this.hasHadConversation = false;
 
             // Config from WordPress
             this.config = window.voiceDemoConfig || {
@@ -161,6 +218,9 @@
         }
 
         getModalHTML() {
+            const currentVoice = this.getCurrentVoice();
+            const voices = VOICES[this.selectedProvider] || [];
+
             return `
                 <div class="voice-demo-modal">
                     <button class="voice-demo-close" aria-label="Close demo">
@@ -228,15 +288,23 @@
 
                             <!-- Controls at Bottom -->
                             <div class="voice-demo-controls-bottom">
-                                <button class="voice-demo-start">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-                                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                                        <line x1="12" y1="19" x2="12" y2="23"/>
-                                        <line x1="8" y1="23" x2="16" y2="23"/>
-                                    </svg>
-                                    <span>Start Live Conversation</span>
-                                </button>
+                                <div class="voice-demo-start-group">
+                                    <button class="voice-demo-start">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                            <line x1="12" y1="19" x2="12" y2="23"/>
+                                            <line x1="8" y1="23" x2="16" y2="23"/>
+                                        </svg>
+                                        <span>Start Live Conversation</span>
+                                    </button>
+                                    <button class="voice-demo-settings-btn" aria-label="Settings">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="3"/>
+                                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                                        </svg>
+                                    </button>
+                                </div>
 
                                 <div class="voice-demo-btn-group">
                                     <button class="voice-demo-mic" aria-label="Toggle microphone">
@@ -264,8 +332,159 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Settings Modal -->
+                    <div class="voice-demo-settings-modal">
+                        <div class="voice-demo-settings-content">
+                            <div class="voice-demo-settings-header">
+                                <h3>Demo Settings</h3>
+                                <button class="voice-demo-settings-close" aria-label="Close settings">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M18 6L6 18M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div class="voice-demo-settings-body">
+                                <!-- Voice Selection -->
+                                <div class="voice-demo-settings-group">
+                                    <label class="voice-demo-settings-label">Voice</label>
+                                    <select class="voice-demo-settings-select voice-demo-voice-select">
+                                        ${voices.map(v => `
+                                            <option value="${v.id}" ${v.id === currentVoice ? 'selected' : ''}>
+                                                ${v.name} - ${v.description}
+                                            </option>
+                                        `).join('')}
+                                    </select>
+                                </div>
+
+                                <!-- Introduction Mode -->
+                                <div class="voice-demo-settings-group">
+                                    <label class="voice-demo-settings-label">Introduction</label>
+                                    <div class="voice-demo-intro-options">
+                                        ${INTRO_MODES.map(mode => `
+                                            <label class="voice-demo-intro-option ${mode.id === this.introMode ? 'selected' : ''}">
+                                                <input type="radio" name="intro_mode" value="${mode.id}"
+                                                    ${mode.id === this.introMode ? 'checked' : ''}>
+                                                <span class="voice-demo-intro-option-content">
+                                                    <span class="voice-demo-intro-option-name">${mode.name}</span>
+                                                    <span class="voice-demo-intro-option-desc">${mode.description}</span>
+                                                </span>
+                                            </label>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="voice-demo-settings-footer">
+                                <button class="voice-demo-settings-done">Done</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Exit Intent CTA Modal -->
+                    <div class="voice-demo-exit-cta" role="dialog" aria-labelledby="exit-cta-title" aria-describedby="exit-cta-desc">
+                        <div class="voice-demo-exit-cta-content">
+                            <div class="voice-demo-exit-cta-header">
+                                <div class="voice-demo-exit-cta-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                        <line x1="12" y1="19" x2="12" y2="23"/>
+                                        <line x1="8" y1="23" x2="16" y2="23"/>
+                                        <circle cx="19" cy="5" r="3" fill="currentColor" stroke="none"/>
+                                    </svg>
+                                </div>
+                                <h3 id="exit-cta-title" class="voice-demo-exit-cta-title">See Voice AI Built for Your Business</h3>
+                            </div>
+
+                            <p id="exit-cta-desc" class="voice-demo-exit-cta-description">
+                                You've experienced our <span class="voice-demo-exit-cta-agent"></span> demo.
+                                Now imagine voice AI customized for your exact workflows, terminology, and customer needs.
+                            </p>
+
+                            <ul class="voice-demo-exit-cta-benefits">
+                                <li>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                        <polyline points="22 4 12 14.01 9 11.01"/>
+                                    </svg>
+                                    Personalized demo with your use cases
+                                </li>
+                                <li>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                        <polyline points="22 4 12 14.01 9 11.01"/>
+                                    </svg>
+                                    Custom voice and conversation flow
+                                </li>
+                                <li>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                        <polyline points="22 4 12 14.01 9 11.01"/>
+                                    </svg>
+                                    Integration with your existing systems
+                                </li>
+                            </ul>
+
+                            <div class="voice-demo-exit-cta-actions">
+                                <a href="#demo" class="voice-demo-exit-cta-primary">
+                                    <span>Schedule Your Custom Demo</span>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                                    </svg>
+                                </a>
+                                <button type="button" class="voice-demo-exit-cta-secondary">
+                                    No thanks, close demo
+                                </button>
+                            </div>
+
+                            <p class="voice-demo-exit-cta-trust">
+                                Trusted by businesses in energy, fitness, home services, and more.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             `;
+        }
+
+        getCurrentVoice() {
+            if (this.selectedVoice) {
+                // Verify the voice exists for current provider
+                const providerVoices = VOICES[this.selectedProvider] || [];
+                if (providerVoices.find(v => v.id === this.selectedVoice)) {
+                    return this.selectedVoice;
+                }
+            }
+            // Fall back to agent default
+            return AGENT_DEFAULT_VOICES[this.selectedAgent]?.[this.selectedProvider] ||
+                   VOICES[this.selectedProvider]?.[0]?.id || 'alloy';
+        }
+
+        loadSettings() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const settings = JSON.parse(saved);
+                    this.selectedProvider = settings.provider || 'openai';
+                    this.selectedVoice = settings.voice || null;
+                    this.introMode = settings.introMode || 'full';
+                }
+            } catch (e) {
+                console.warn('[VoiceDemo] Failed to load settings:', e);
+            }
+        }
+
+        saveSettings() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                    provider: this.selectedProvider,
+                    voice: this.selectedVoice,
+                    introMode: this.introMode
+                }));
+            } catch (e) {
+                console.warn('[VoiceDemo] Failed to save settings:', e);
+            }
         }
 
         bindEvents() {
@@ -285,7 +504,13 @@
             // Escape key
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && this.overlay.classList.contains('active')) {
-                    this.close();
+                    if (this.exitCtaOpen) {
+                        this.dismissExitCtaAndClose();
+                    } else if (this.settingsOpen) {
+                        this.closeSettings();
+                    } else {
+                        this.close();
+                    }
                 }
             });
 
@@ -293,6 +518,37 @@
             this.overlay.querySelectorAll('.voice-demo-provider').forEach(btn => {
                 btn.addEventListener('click', () => {
                     this.selectProvider(btn.dataset.provider);
+                });
+            });
+
+            // Settings button
+            this.overlay.querySelector('.voice-demo-settings-btn').addEventListener('click', () => this.openSettings());
+
+            // Settings close button
+            this.overlay.querySelector('.voice-demo-settings-close').addEventListener('click', () => this.closeSettings());
+
+            // Settings done button
+            this.overlay.querySelector('.voice-demo-settings-done').addEventListener('click', () => this.closeSettings());
+
+            // Settings modal backdrop click
+            this.overlay.querySelector('.voice-demo-settings-modal').addEventListener('click', (e) => {
+                if (e.target.classList.contains('voice-demo-settings-modal')) {
+                    this.closeSettings();
+                }
+            });
+
+            // Voice selection change
+            this.overlay.querySelector('.voice-demo-voice-select').addEventListener('change', (e) => {
+                this.selectedVoice = e.target.value;
+                this.saveSettings();
+            });
+
+            // Intro mode selection
+            this.overlay.querySelectorAll('input[name="intro_mode"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    this.introMode = e.target.value;
+                    this.saveSettings();
+                    this.updateIntroModeUI();
                 });
             });
 
@@ -311,15 +567,49 @@
 
             // End button
             this.overlay.querySelector('.voice-demo-end').addEventListener('click', () => this.disconnect());
+
+            // Exit CTA modal events
+            const exitCtaModal = this.overlay.querySelector('.voice-demo-exit-cta');
+            if (exitCtaModal) {
+                // Primary CTA button - close modal and navigate to demo section
+                const primaryBtn = exitCtaModal.querySelector('.voice-demo-exit-cta-primary');
+                if (primaryBtn) {
+                    primaryBtn.addEventListener('click', () => this.dismissExitCtaAndClose());
+                }
+
+                // Secondary button - dismiss and close
+                const secondaryBtn = exitCtaModal.querySelector('.voice-demo-exit-cta-secondary');
+                if (secondaryBtn) {
+                    secondaryBtn.addEventListener('click', () => this.dismissExitCtaAndClose());
+                }
+
+                // Click outside the CTA content to dismiss
+                exitCtaModal.addEventListener('click', (e) => {
+                    if (e.target === exitCtaModal) {
+                        this.dismissExitCtaAndClose();
+                    }
+                });
+            }
         }
 
         open() {
             this.overlay.classList.add('active');
             document.body.classList.add('voice-demo-open');
             this.startVisualizer();
+            this.demoOpenedAt = Date.now();
         }
 
         close() {
+            // Check if we should show exit intent CTA
+            if (this.shouldShowExitCta()) {
+                this.showExitCta();
+                return;
+            }
+
+            this.performClose();
+        }
+
+        performClose() {
             if (this.status === 'connected') {
                 this.disconnect();
             } else {
@@ -355,6 +645,11 @@
                 errorEl.textContent = '';
             }
             this.updateTranscript();
+
+            // Reset exit CTA tracking (but not exitCtaShown - that persists)
+            this.exitCtaOpen = false;
+            this.demoOpenedAt = null;
+            this.hasHadConversation = false;
         }
 
         selectProvider(providerId) {
@@ -366,6 +661,8 @@
                 btn.classList.toggle('active', btn.dataset.provider === providerId);
             });
             this.updateConfigDisplay();
+            this.updateVoiceSelect();
+            this.saveSettings();
             this.prepareNewSession('provider-switch');
         }
 
@@ -387,6 +684,111 @@
                 if (el) {
                     el.textContent = config[key];
                 }
+            });
+        }
+
+        openSettings() {
+            this.settingsOpen = true;
+            this.overlay.querySelector('.voice-demo-settings-modal').classList.add('active');
+            this.updateVoiceSelect();
+            this.updateIntroModeUI();
+        }
+
+        closeSettings() {
+            this.settingsOpen = false;
+            this.overlay.querySelector('.voice-demo-settings-modal').classList.remove('active');
+        }
+
+        // Exit Intent CTA Methods
+        shouldShowExitCta() {
+            // Don't show if already shown this session
+            if (this.exitCtaShown || this.exitCtaOpen) {
+                return false;
+            }
+
+            // Don't show if already shown via sessionStorage
+            try {
+                if (sessionStorage.getItem(EXIT_CTA_SESSION_KEY)) {
+                    return false;
+                }
+            } catch (e) {
+                // sessionStorage not available, continue
+            }
+
+            // Check if user has had meaningful engagement
+            const timeSpent = this.demoOpenedAt ? (Date.now() - this.demoOpenedAt) / 1000 : 0;
+            const hasEngaged = timeSpent >= MIN_ENGAGEMENT_SECONDS ||
+                               this.transcript.length >= MIN_TRANSCRIPT_LENGTH ||
+                               this.hasHadConversation;
+
+            return hasEngaged;
+        }
+
+        showExitCta() {
+            this.exitCtaOpen = true;
+            this.exitCtaShown = true;
+
+            // Mark as shown in sessionStorage so it doesn't show again this session
+            try {
+                sessionStorage.setItem(EXIT_CTA_SESSION_KEY, 'true');
+            } catch (e) {
+                // sessionStorage not available
+            }
+
+            // Update the agent name in the CTA
+            const agentNameEl = this.overlay.querySelector('.voice-demo-exit-cta-agent');
+            if (agentNameEl) {
+                const agent = AGENTS.find(a => a.id === this.selectedAgent);
+                agentNameEl.textContent = agent ? agent.name.toLowerCase() : 'voice agent';
+            }
+
+            // Show the CTA modal
+            const ctaModal = this.overlay.querySelector('.voice-demo-exit-cta');
+            if (ctaModal) {
+                ctaModal.classList.add('active');
+
+                // Focus the primary CTA button for accessibility
+                const primaryBtn = ctaModal.querySelector('.voice-demo-exit-cta-primary');
+                if (primaryBtn) {
+                    setTimeout(() => primaryBtn.focus(), 100);
+                }
+            }
+        }
+
+        hideExitCta() {
+            this.exitCtaOpen = false;
+            const ctaModal = this.overlay.querySelector('.voice-demo-exit-cta');
+            if (ctaModal) {
+                ctaModal.classList.remove('active');
+            }
+        }
+
+        dismissExitCtaAndClose() {
+            this.hideExitCta();
+            this.performClose();
+        }
+
+        updateVoiceSelect() {
+            const select = this.overlay.querySelector('.voice-demo-voice-select');
+            if (!select) return;
+
+            const voices = VOICES[this.selectedProvider] || [];
+            const currentVoice = this.getCurrentVoice();
+
+            select.innerHTML = voices.map(v => `
+                <option value="${v.id}" ${v.id === currentVoice ? 'selected' : ''}>
+                    ${v.name} - ${v.description}
+                </option>
+            `).join('');
+
+            // Update selected voice to match current provider
+            this.selectedVoice = currentVoice;
+        }
+
+        updateIntroModeUI() {
+            this.overlay.querySelectorAll('.voice-demo-intro-option').forEach(option => {
+                const radio = option.querySelector('input');
+                option.classList.toggle('selected', radio.value === this.introMode);
             });
         }
 
@@ -563,11 +965,13 @@
                     sessionTimeout = setTimeout(() => {
                         fail(new Error('Session start timeout'));
                     }, SESSION_TIMEOUT_MS);
-                    // Send start message with provider
+                    // Send start message with provider and settings
                     this.ws.send(JSON.stringify({
                         type: 'start',
                         agent_id: this.selectedAgent,
                         provider: this.selectedProvider,
+                        voice: this.getCurrentVoice(),
+                        intro_mode: this.introMode,
                         config: { sample_rate: this.inputSampleRate }
                     }));
                 };
@@ -702,6 +1106,9 @@
         addTranscript(speaker, text, isFinal = true) {
             const last = this.transcript[this.transcript.length - 1];
             let isUpdate = false;
+
+            // Track engagement for exit intent CTA
+            this.hasHadConversation = true;
 
             // Update existing entry if same speaker and entry isn't finalized yet
             if (last && last.speaker === speaker && !last.final) {
