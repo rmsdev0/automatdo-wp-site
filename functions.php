@@ -183,9 +183,14 @@ function automatdo_scripts() {
             AUTOMATDO_VERSION,
             true
         );
+        // Detect local development environment
+        $is_local = strpos(home_url(), '.local') !== false || strpos(home_url(), 'localhost') !== false;
+        $ws_endpoint = $is_local
+            ? 'ws://localhost:8000/browser-voice-agent'
+            : 'wss://app.automatdo.com/browser-voice-agent';
+
         wp_localize_script('automatdo-voice-demo', 'voiceDemoConfig', array(
-            // Local development - change to 'wss://app.automatdo.com/browser-voice-agent' for production
-            'wsEndpoint' => 'ws://localhost:8000/browser-voice-agent',
+            'wsEndpoint' => $ws_endpoint,
             'themeUrl'   => AUTOMATDO_URI,
             'audioProcessorUrl' => AUTOMATDO_URI . '/assets/js/audio-processor.js',
         ));

@@ -105,7 +105,10 @@
 
     // localStorage key for settings
     const STORAGE_KEY = 'automatdo_voice_demo_settings';
-    const EXIT_CTA_SESSION_KEY = 'automatdo_exit_cta_shown';
+    const EXIT_CTA_STORAGE_KEY = 'automatdo_exit_cta_count';
+
+    // Exit CTA frequency settings
+    const EXIT_CTA_SHOW_EVERY_N = 3; // Show CTA every Nth demo session
 
     // Engagement thresholds for showing exit CTA
     const MIN_ENGAGEMENT_SECONDS = 10; // Must have demo open for at least 10 seconds
@@ -168,6 +171,12 @@
             this.exitCtaOpen = false;
             this.demoOpenedAt = null;
             this.hasHadConversation = false;
+
+            // Rate limit and timeout tracking
+            this.rateLimitModalOpen = false;
+            this.timeoutWarningActive = false;
+            this.timeoutSecondsRemaining = 0;
+            this.timeoutCountdownInterval = null;
 
             // Config from WordPress
             this.config = window.voiceDemoConfig || {
@@ -445,6 +454,69 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Rate Limit / Session Timeout Modal (outside .voice-demo-modal for full overlay coverage) -->
+                <div class="voice-demo-rate-limit-modal" role="dialog" aria-labelledby="rate-limit-title" aria-describedby="rate-limit-desc">
+                    <div class="voice-demo-rate-limit-content">
+                        <div class="voice-demo-rate-limit-header">
+                            <div class="voice-demo-rate-limit-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+                                    <path d="M12 6v6l4 2"/>
+                                </svg>
+                            </div>
+                            <h3 id="rate-limit-title" class="voice-demo-rate-limit-title">Thanks for Trying Our Demo!</h3>
+                        </div>
+
+                        <p id="rate-limit-desc" class="voice-demo-rate-limit-description">
+                            We're a small team building something we're really proud of. While we'd love to let you explore endlessly, we need to keep our demo costs manageable as we grow.
+                        </p>
+
+                        <p class="voice-demo-rate-limit-message"></p>
+
+                        <div class="voice-demo-rate-limit-highlight">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 12l2 2 4-4"/>
+                                <circle cx="12" cy="12" r="10"/>
+                            </svg>
+                            <span>The good news? We'd love to show you a personalized demo built specifically for YOUR business needs.</span>
+                        </div>
+
+                        <div class="voice-demo-rate-limit-actions">
+                            <a href="#demo" class="voice-demo-rate-limit-primary">
+                                <span>Schedule a Demo</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                            </a>
+                            <button type="button" class="voice-demo-rate-limit-secondary">
+                                Close
+                            </button>
+                        </div>
+
+                        <p class="voice-demo-rate-limit-footer">
+                            Questions? Reach out anytime - we're here to help.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Session Timeout Warning Toast -->
+                <div class="voice-demo-timeout-toast" role="alert" aria-live="polite">
+                    <div class="voice-demo-timeout-toast-content">
+                        <div class="voice-demo-timeout-toast-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 6v6l4 2"/>
+                            </svg>
+                        </div>
+                        <div class="voice-demo-timeout-toast-text">
+                            <span class="voice-demo-timeout-toast-title">Session ending soon</span>
+                            <span class="voice-demo-timeout-toast-countdown">
+                                <span class="voice-demo-timeout-seconds">60</span> seconds remaining
+                            </span>
+                        </div>
+                    </div>
+                </div>
             `;
         }
 
@@ -504,7 +576,9 @@
             // Escape key
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && this.overlay.classList.contains('active')) {
-                    if (this.exitCtaOpen) {
+                    if (this.rateLimitModalOpen) {
+                        this.dismissRateLimitAndClose();
+                    } else if (this.exitCtaOpen) {
                         this.dismissExitCtaAndClose();
                     } else if (this.settingsOpen) {
                         this.closeSettings();
@@ -590,6 +664,29 @@
                     }
                 });
             }
+
+            // Rate limit modal events
+            const rateLimitModal = this.overlay.querySelector('.voice-demo-rate-limit-modal');
+            if (rateLimitModal) {
+                // Primary CTA button - close modal and navigate to demo section
+                const primaryBtn = rateLimitModal.querySelector('.voice-demo-rate-limit-primary');
+                if (primaryBtn) {
+                    primaryBtn.addEventListener('click', () => this.dismissRateLimitAndClose());
+                }
+
+                // Secondary button - dismiss and close
+                const secondaryBtn = rateLimitModal.querySelector('.voice-demo-rate-limit-secondary');
+                if (secondaryBtn) {
+                    secondaryBtn.addEventListener('click', () => this.dismissRateLimitAndClose());
+                }
+
+                // Click outside the content to dismiss
+                rateLimitModal.addEventListener('click', (e) => {
+                    if (e.target === rateLimitModal) {
+                        this.dismissRateLimitAndClose();
+                    }
+                });
+            }
         }
 
         open() {
@@ -610,6 +707,9 @@
         }
 
         performClose() {
+            // Increment demo count for exit CTA frequency tracking
+            this.incrementDemoCount();
+
             if (this.status === 'connected') {
                 this.disconnect();
             } else {
@@ -619,6 +719,15 @@
             document.body.classList.remove('voice-demo-open');
             this.stopVisualizer();
             this.reset();
+        }
+
+        incrementDemoCount() {
+            try {
+                const count = parseInt(localStorage.getItem(EXIT_CTA_STORAGE_KEY) || '0', 10);
+                localStorage.setItem(EXIT_CTA_STORAGE_KEY, String(count + 1));
+            } catch (e) {
+                // localStorage not available
+            }
         }
 
         reset() {
@@ -646,10 +755,20 @@
             }
             this.updateTranscript();
 
-            // Reset exit CTA tracking (but not exitCtaShown - that persists)
+            // Reset exit CTA tracking for next demo session
+            this.exitCtaShown = false;
             this.exitCtaOpen = false;
             this.demoOpenedAt = null;
             this.hasHadConversation = false;
+
+            // Reset rate limit and timeout tracking
+            this.rateLimitModalOpen = false;
+            this.timeoutWarningActive = false;
+            this.timeoutSecondsRemaining = 0;
+            if (this.timeoutCountdownInterval) {
+                clearInterval(this.timeoutCountdownInterval);
+                this.timeoutCountdownInterval = null;
+            }
         }
 
         selectProvider(providerId) {
@@ -701,18 +820,9 @@
 
         // Exit Intent CTA Methods
         shouldShowExitCta() {
-            // Don't show if already shown this session
+            // Don't show if already shown this demo session
             if (this.exitCtaShown || this.exitCtaOpen) {
                 return false;
-            }
-
-            // Don't show if already shown via sessionStorage
-            try {
-                if (sessionStorage.getItem(EXIT_CTA_SESSION_KEY)) {
-                    return false;
-                }
-            } catch (e) {
-                // sessionStorage not available, continue
             }
 
             // Check if user has had meaningful engagement
@@ -721,19 +831,24 @@
                                this.transcript.length >= MIN_TRANSCRIPT_LENGTH ||
                                this.hasHadConversation;
 
-            return hasEngaged;
+            if (!hasEngaged) {
+                return false;
+            }
+
+            // Check demo count - show CTA every Nth demo
+            try {
+                const count = parseInt(localStorage.getItem(EXIT_CTA_STORAGE_KEY) || '0', 10);
+                // Show on 1st, 4th, 7th, etc. (every 3rd starting from 1)
+                return count % EXIT_CTA_SHOW_EVERY_N === 0;
+            } catch (e) {
+                // localStorage not available, show CTA
+                return true;
+            }
         }
 
         showExitCta() {
             this.exitCtaOpen = true;
             this.exitCtaShown = true;
-
-            // Mark as shown in sessionStorage so it doesn't show again this session
-            try {
-                sessionStorage.setItem(EXIT_CTA_SESSION_KEY, 'true');
-            } catch (e) {
-                // sessionStorage not available
-            }
 
             // Update the agent name in the CTA
             const agentNameEl = this.overlay.querySelector('.voice-demo-exit-cta-agent');
@@ -766,6 +881,157 @@
         dismissExitCtaAndClose() {
             this.hideExitCta();
             this.performClose();
+        }
+
+        // Rate Limit & Session Timeout Methods
+        handleRateLimit(msg) {
+            console.log('[VoiceDemo] Rate limit received:', msg);
+
+            // Disconnect if connected
+            if (this.status === 'connected' || this.status === 'connecting') {
+                this.cleanup();
+                this.setStatus('idle');
+            }
+
+            // Update modal title based on error type
+            const titleEl = this.overlay.querySelector('.voice-demo-rate-limit-title');
+            const messageEl = this.overlay.querySelector('.voice-demo-rate-limit-message');
+
+            if (msg.error_type === 'daily_limit') {
+                if (titleEl) titleEl.textContent = 'You\'ve Reached Today\'s Demo Limit';
+                if (messageEl) {
+                    const limit = msg.remaining?.daily_limit || 10;
+                    messageEl.textContent = `Each visitor gets ${limit} demo sessions per day to keep things fair for everyone exploring our technology.`;
+                }
+            } else if (msg.error_type === 'concurrent_limit') {
+                if (titleEl) titleEl.textContent = 'Demo Currently Busy';
+                if (messageEl) {
+                    messageEl.textContent = 'Our demo is experiencing high demand right now. Please try again in a moment, or schedule a private demo for uninterrupted access.';
+                }
+            } else {
+                if (titleEl) titleEl.textContent = 'Thanks for Trying Our Demo!';
+                if (messageEl) {
+                    messageEl.textContent = msg.message || 'Demo limit reached. We appreciate your interest!';
+                }
+            }
+
+            this.showRateLimitModal();
+        }
+
+        handleSessionTimeout(msg) {
+            console.log('[VoiceDemo] Session timeout:', msg);
+
+            // Hide the warning toast if showing
+            this.hideTimeoutWarning();
+
+            // Disconnect
+            if (this.status === 'connected') {
+                this.cleanup();
+                this.setStatus('idle');
+            }
+
+            // Update modal for timeout
+            const titleEl = this.overlay.querySelector('.voice-demo-rate-limit-title');
+            const messageEl = this.overlay.querySelector('.voice-demo-rate-limit-message');
+
+            if (titleEl) titleEl.textContent = 'Demo Session Complete';
+            if (messageEl) {
+                messageEl.textContent = 'Your 10-minute demo session has ended. We hope you got a taste of what our voice AI can do!';
+            }
+
+            this.showRateLimitModal();
+        }
+
+        showRateLimitModal() {
+            this.rateLimitModalOpen = true;
+
+            const modal = this.overlay.querySelector('.voice-demo-rate-limit-modal');
+            if (modal) {
+                modal.classList.add('active');
+
+                // Focus the primary button for accessibility
+                const primaryBtn = modal.querySelector('.voice-demo-rate-limit-primary');
+                if (primaryBtn) {
+                    setTimeout(() => primaryBtn.focus(), 100);
+                }
+            }
+        }
+
+        hideRateLimitModal() {
+            this.rateLimitModalOpen = false;
+
+            const modal = this.overlay.querySelector('.voice-demo-rate-limit-modal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        dismissRateLimitAndClose() {
+            this.hideRateLimitModal();
+            this.performClose();
+        }
+
+        showTimeoutWarning(remainingSeconds) {
+            console.log('[VoiceDemo] Session timeout warning:', remainingSeconds, 'seconds remaining');
+
+            this.timeoutWarningActive = true;
+            this.timeoutSecondsRemaining = remainingSeconds;
+
+            const toast = this.overlay.querySelector('.voice-demo-timeout-toast');
+            const secondsEl = this.overlay.querySelector('.voice-demo-timeout-seconds');
+
+            if (secondsEl) {
+                secondsEl.textContent = remainingSeconds;
+            }
+
+            if (toast) {
+                toast.classList.add('active');
+            }
+
+            // Start countdown timer
+            this.startTimeoutCountdown();
+        }
+
+        hideTimeoutWarning() {
+            this.timeoutWarningActive = false;
+
+            // Clear countdown interval
+            if (this.timeoutCountdownInterval) {
+                clearInterval(this.timeoutCountdownInterval);
+                this.timeoutCountdownInterval = null;
+            }
+
+            const toast = this.overlay.querySelector('.voice-demo-timeout-toast');
+            if (toast) {
+                toast.classList.remove('active');
+            }
+        }
+
+        startTimeoutCountdown() {
+            // Clear any existing interval
+            if (this.timeoutCountdownInterval) {
+                clearInterval(this.timeoutCountdownInterval);
+            }
+
+            const secondsEl = this.overlay.querySelector('.voice-demo-timeout-seconds');
+
+            this.timeoutCountdownInterval = setInterval(() => {
+                this.timeoutSecondsRemaining--;
+
+                if (secondsEl) {
+                    secondsEl.textContent = Math.max(0, this.timeoutSecondsRemaining);
+                }
+
+                // Add urgency class when under 30 seconds
+                const toast = this.overlay.querySelector('.voice-demo-timeout-toast');
+                if (toast && this.timeoutSecondsRemaining <= 30) {
+                    toast.classList.add('urgent');
+                }
+
+                if (this.timeoutSecondsRemaining <= 0) {
+                    this.hideTimeoutWarning();
+                }
+            }, 1000);
         }
 
         updateVoiceSelect() {
@@ -1073,6 +1339,18 @@
 
                 case 'session_ended':
                     this.disconnect();
+                    break;
+
+                case 'rate_limit':
+                    this.handleRateLimit(msg);
+                    break;
+
+                case 'session_timeout_warning':
+                    this.showTimeoutWarning(msg.remaining_seconds);
+                    break;
+
+                case 'session_timeout':
+                    this.handleSessionTimeout(msg);
                     break;
             }
         }
