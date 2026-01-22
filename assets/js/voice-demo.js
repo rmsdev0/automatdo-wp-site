@@ -128,7 +128,7 @@
             this.status = 'idle'; // idle, connecting, connected, error
             this.agentState = 'idle'; // idle, listening, thinking, speaking
             this.selectedAgent = 'fitness';
-            this.selectedProvider = 'openai'; // 'openai' or 'xai'
+            this.selectedProvider = 'xai'; // 'openai' or 'xai'
             this.selectedVoice = null; // null = use agent default
             this.introMode = 'full'; // 'full', 'brief', 'none'
             this.transcript = [];
@@ -546,7 +546,7 @@
                 const saved = localStorage.getItem(STORAGE_KEY);
                 if (saved) {
                     const settings = JSON.parse(saved);
-                    this.selectedProvider = settings.provider || 'openai';
+                    this.selectedProvider = settings.provider || 'xai';
                     this.selectedVoice = settings.voice || null;
                     this.introMode = settings.introMode || 'full';
                 }
