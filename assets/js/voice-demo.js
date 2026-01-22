@@ -25,21 +25,25 @@
         {
             id: 'tpv',
             name: 'VERIFICATION',
+            shortName: 'TPV',
             description: 'Third-party verification calls'
         },
         {
             id: 'fitness',
             name: 'FITNESS',
+            shortName: 'FITNESS',
             description: 'Gym & fitness center support'
         },
         {
             id: 'home-services',
             name: 'HOME SERVICES',
+            shortName: 'HOME',
             description: 'Contractor booking & scheduling'
         },
         {
             id: 'contact-center',
             name: 'CONTACT CENTER',
+            shortName: 'SUPPORT',
             description: 'General customer support'
         }
     ];
@@ -253,8 +257,12 @@
                     <div class="voice-demo-tabs">
                         ${AGENTS.map(agent => `
                             <button class="voice-demo-tab ${agent.id === this.selectedAgent ? 'active' : ''}"
-                                    data-agent="${agent.id}">
-                                <span class="voice-demo-tab-name">${agent.name}</span>
+                                    data-agent="${agent.id}"
+                                    aria-label="${agent.name} - ${agent.description}">
+                                <span class="voice-demo-tab-name">
+                                    <span class="voice-demo-tab-name-full">${agent.name}</span>
+                                    <span class="voice-demo-tab-name-short">${agent.shortName}</span>
+                                </span>
                                 <span class="voice-demo-tab-desc">${agent.description}</span>
                             </button>
                         `).join('')}
@@ -1104,16 +1112,20 @@
                 console.log('[VoiceDemo] Microphone access granted');
 
                 // Initialize audio context
+                console.log('[VoiceDemo] Creating new AudioContext...');
                 this.audioContext = new (window.AudioContext || window.webkitAudioContext)({
                     sampleRate: 16000
                 });
+                console.log('[VoiceDemo] AudioContext created, state:', this.audioContext.state);
 
                 // Resume audio context (required after user interaction)
                 if (this.audioContext.state === 'suspended') {
+                    console.log('[VoiceDemo] AudioContext suspended, resuming...');
                     await this.audioContext.resume();
+                    console.log('[VoiceDemo] AudioContext resumed, state:', this.audioContext.state);
                 }
                 this.inputSampleRate = this.audioContext.sampleRate || 16000;
-                console.log('[VoiceDemo] AudioContext state:', this.audioContext.state, 'sampleRate:', this.inputSampleRate);
+                console.log('[VoiceDemo] AudioContext ready - state:', this.audioContext.state, 'sampleRate:', this.inputSampleRate);
 
                 // Load audio worklet
                 const workletUrl = this.config.audioProcessorUrl ||
@@ -1444,7 +1456,20 @@
                 console.log('[VoiceDemo] Queueing audio chunk', this._audioQueueCount, 'size:', buffer.byteLength);
             }
             if (!this.audioContext) {
+                if (this._audioQueueCount <= 3) {
+                    console.warn('[VoiceDemo] No audioContext - cannot play audio');
+                }
                 return;
+            }
+            if (this.audioContext.state === 'closed') {
+                if (this._audioQueueCount <= 3) {
+                    console.warn('[VoiceDemo] AudioContext is closed - cannot play audio');
+                }
+                return;
+            }
+            if (this.audioContext.state === 'suspended') {
+                console.log('[VoiceDemo] AudioContext suspended, attempting to resume...');
+                this.audioContext.resume().catch(err => console.error('[VoiceDemo] Failed to resume AudioContext:', err));
             }
             if (this.ignoreAudioUntil && performance.now() < this.ignoreAudioUntil) {
                 if (!this._audioIgnoreLogged) {
@@ -1517,6 +1542,10 @@
             this.cleanup();
             this.setStatus('idle');
             this.updateStatus('idle', 'Call ended');
+
+            // Reset audio counters for next session
+            this._audioQueueCount = 0;
+            this._audioPlayCount = 0;
 
             // Re-enable agent tabs and provider toggle
             this.overlay.querySelectorAll('.voice-demo-tab').forEach(tab => {

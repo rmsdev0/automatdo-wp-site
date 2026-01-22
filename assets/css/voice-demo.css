@@ -207,6 +207,15 @@ body.voice-demo-open {
     margin-bottom: 4px;
 }
 
+/* Show full name by default, hide short name */
+.voice-demo-tab-name-full {
+    display: inline;
+}
+
+.voice-demo-tab-name-short {
+    display: none;
+}
+
 .voice-demo-tab.active .voice-demo-tab-name {
     color: var(--accent-primary);
 }
@@ -743,16 +752,43 @@ body.voice-demo-open {
     }
 
     .voice-demo-tabs {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-sm);
         padding: var(--space-md);
+        overflow-x: visible;
     }
 
     .voice-demo-tab {
-        min-width: 120px;
-        padding: var(--space-sm) var(--space-md);
+        min-width: 0;
+        max-width: none;
+        flex: none;
+        padding: var(--space-sm) var(--space-sm);
+        min-height: 48px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
     }
 
     .voice-demo-tab-name {
         font-size: 0.6875rem;
+        letter-spacing: 0.08em;
+        margin-bottom: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+
+    /* Show short names on mobile for better fit */
+    .voice-demo-tab-name-full {
+        display: none;
+    }
+
+    .voice-demo-tab-name-short {
+        display: inline;
     }
 
     .voice-demo-tab-desc {
@@ -817,10 +853,13 @@ body.voice-demo-open {
 
     .voice-demo-tabs {
         gap: var(--space-xs);
+        padding: var(--space-sm) var(--space-md);
     }
 
     .voice-demo-tab {
-        min-width: 100px;
+        padding: var(--space-xs) var(--space-sm);
+        min-height: 44px;
+        border-radius: var(--radius-sm);
     }
 
     .voice-demo-audio-visualizer {
@@ -842,6 +881,24 @@ body.voice-demo-open {
 
     .voice-demo-btn-group {
         gap: var(--space-md);
+    }
+}
+
+/* Extra small screens - keep 2x2 grid but tighten spacing */
+@media (max-width: 360px) {
+    .voice-demo-tabs {
+        gap: 6px;
+        padding: var(--space-xs) var(--space-sm);
+    }
+
+    .voice-demo-tab {
+        min-height: 40px;
+        padding: var(--space-xs);
+    }
+
+    .voice-demo-tab-name {
+        font-size: 0.625rem;
+        letter-spacing: 0.04em;
     }
 }
 
