@@ -37,7 +37,7 @@
         {
             id: 'home-services',
             name: 'HOME SERVICES',
-            shortName: 'HOME',
+            shortName: 'SERVICES',
             description: 'Contractor booking & scheduling'
         },
         {
