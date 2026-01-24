@@ -80,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initDemoForm();
     initMobileMenu();
     initAudioPlayer();
+    initRotatingText();
 });
 
 /**
@@ -832,5 +833,64 @@ function initAudioPlayer() {
     audio.addEventListener('error', () => {
         audioStatus.innerHTML = '<span class="status-indicator"></span>Error loading audio';
         console.error('Audio failed to load. Please check the file path.');
+    });
+}
+
+/**
+ * Rotating text animation for testimonials heading
+ * Cycles through different audience types with a slide-up animation
+ */
+function initRotatingText() {
+    const container = document.querySelector('.rotating-text');
+    if (!container) return;
+
+    const items = container.querySelectorAll('.rotating-text-item');
+    if (items.length === 0) return;
+
+    let currentIndex = 0;
+    const intervalDuration = 2500; // 2.5 seconds per term
+
+    // Check for reduced motion preference
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function rotateText() {
+        // Get current and next indices
+        const current = items[currentIndex];
+        const nextIndex = (currentIndex + 1) % items.length;
+        const next = items[nextIndex];
+
+        // Add exit class to current item (slides up and fades out)
+        current.classList.add('exit');
+        current.classList.remove('active');
+
+        // Add active class to next item (slides up into view)
+        next.classList.add('active');
+        next.classList.remove('exit');
+
+        // After transition completes, clean up the exit class
+        setTimeout(() => {
+            current.classList.remove('exit');
+        }, prefersReducedMotion ? 10 : 500);
+
+        // Update current index
+        currentIndex = nextIndex;
+    }
+
+    // Start the rotation interval
+    const rotationInterval = setInterval(rotateText, intervalDuration);
+
+    // Pause rotation when page is not visible to save resources
+    document.addEventListener('visibilitychange', () => {
+        // Note: We could stop/start the interval here, but for simplicity
+        // we keep it running. The visual effect pauses naturally when hidden.
+    });
+
+    // Optional: Pause on hover for better UX when reading
+    container.addEventListener('mouseenter', () => {
+        container.style.animationPlayState = 'paused';
+    });
+
+    container.addEventListener('mouseleave', () => {
+        container.style.animationPlayState = 'running';
     });
 }

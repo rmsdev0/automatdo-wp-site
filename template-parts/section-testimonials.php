@@ -10,7 +10,19 @@
     <div class="section-container">
         <div class="section-header">
             <span class="section-tag">Testimonials</span>
-            <h2 class="section-title">Loved by operations teams</h2>
+            <h2 class="section-title">
+                Loved by
+                <span class="rotating-text" aria-hidden="true">
+                    <span class="rotating-text-item active">operations teams</span>
+                    <span class="rotating-text-item">small business owners</span>
+                    <span class="rotating-text-item">busy entrepreneurs</span>
+                    <span class="rotating-text-item">contact centers</span>
+                    <span class="rotating-text-item">growing companies</span>
+                    <span class="rotating-text-item">fitness studios</span>
+                    <span class="rotating-text-item">home service pros</span>
+                </span>
+                <span class="visually-hidden">operations teams, small business owners, busy entrepreneurs, contact centers, growing companies, fitness studios, and home service pros</span>
+            </h2>
         </div>
 
         <div class="testimonials-grid">

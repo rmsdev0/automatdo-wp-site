@@ -47,8 +47,8 @@ get_header();
 
             <div class="hero-stats">
                 <div class="stat">
-                    <span class="stat-number">&lt; 700ms Latency</span>
-                    <span class="stat-label">Real-Time Response</span>
+                    <span class="stat-number">10,000+ Calls</span>
+                    <span class="stat-label">Handled for Our Clients</span>
                 </div>
                 <div class="stat-divider"></div>
                 <div class="stat">
@@ -111,91 +111,6 @@ get_header();
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-
-        <!-- Audio Recording Playback -->
-        <div class="audio-recording">
-            <div class="audio-intro">
-                <span class="audio-tag">Real Call Recording</span>
-                <h3 class="audio-heading">Hear the AI in Action</h3>
-            </div>
-
-            <div class="audio-player-compact">
-                <div class="audio-glow-subtle"></div>
-                <button class="play-button-compact" id="play-button" aria-label="Play audio">
-                    <span class="play-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <path d="M8 5L19 12L8 19V5Z" fill="currentColor"/>
-                        </svg>
-                    </span>
-                    <span class="pause-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <rect x="7" y="5" width="4" height="14" fill="currentColor"/>
-                            <rect x="13" y="5" width="4" height="14" fill="currentColor"/>
-                        </svg>
-                    </span>
-                </button>
-
-                <div class="audio-player">
-                    <div class="waveform-compact">
-                        <div class="waveform-bars">
-                            <span style="--h: 30%"></span>
-                            <span style="--h: 55%"></span>
-                            <span style="--h: 40%"></span>
-                            <span style="--h: 70%"></span>
-                            <span style="--h: 45%"></span>
-                            <span style="--h: 85%"></span>
-                            <span style="--h: 50%"></span>
-                            <span style="--h: 65%"></span>
-                            <span style="--h: 90%"></span>
-                            <span style="--h: 55%"></span>
-                            <span style="--h: 75%"></span>
-                            <span style="--h: 40%"></span>
-                            <span style="--h: 60%"></span>
-                            <span style="--h: 80%"></span>
-                            <span style="--h: 45%"></span>
-                            <span style="--h: 70%"></span>
-                            <span style="--h: 35%"></span>
-                            <span style="--h: 55%"></span>
-                            <span style="--h: 75%"></span>
-                            <span style="--h: 50%"></span>
-                            <span style="--h: 85%"></span>
-                            <span style="--h: 60%"></span>
-                            <span style="--h: 40%"></span>
-                            <span style="--h: 65%"></span>
-                            <span style="--h: 45%"></span>
-                            <span style="--h: 70%"></span>
-                            <span style="--h: 55%"></span>
-                            <span style="--h: 80%"></span>
-                            <span style="--h: 35%"></span>
-                            <span style="--h: 50%"></span>
-                        </div>
-                        <div class="progress-track" id="progress-bar">
-                            <div class="progress-fill" id="progress-fill"></div>
-                            <div class="progress-handle" id="progress-handle"></div>
-                        </div>
-                    </div>
-
-                    <div class="audio-meta">
-                        <div class="audio-info-compact">
-                            <span class="audio-time-compact">
-                                <span id="current-time">0:00</span> / <span id="duration">0:00</span>
-                            </span>
-                            <span class="audio-label-compact">AI Agent Call Recording</span>
-                        </div>
-                        <span class="audio-status" id="audio-status">
-                            <span class="status-indicator"></span>
-                            Ready
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <audio id="audio-player" preload="metadata">
-                <source src="<?php echo get_template_directory_uri(); ?>/assets/audio/call-recording.m4a" type="audio/mp4">
-                Your browser does not support the audio element.
-            </audio>
         </div>
     </section>
 
@@ -321,6 +236,24 @@ get_header();
 
     <!-- Solutions Section -->
     <?php get_template_part('template-parts/section', 'solutions'); ?>
+
+    <!-- Social Proof Stats Banner -->
+    <section class="social-proof-banner" aria-label="Company achievements">
+        <div class="social-proof-container">
+            <p class="social-proof-lead">Join the businesses that trust Automatdo</p>
+            <div class="social-proof-stats">
+                <div class="proof-stat">
+                    <span class="proof-stat-number">10,000+</span>
+                    <span class="proof-stat-label">Calls Automated</span>
+                </div>
+                <div class="proof-stat-divider" aria-hidden="true"></div>
+                <div class="proof-stat">
+                    <span class="proof-stat-number">500+</span>
+                    <span class="proof-stat-label">Appointments Scheduled</span>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- Testimonials Section -->
     <?php get_template_part('template-parts/section', 'testimonials'); ?>
