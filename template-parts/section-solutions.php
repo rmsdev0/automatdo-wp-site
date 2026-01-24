@@ -24,7 +24,7 @@
                         <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
                     </svg>
                 </span>
-                <span>TPV & Verification</span>
+                <span>Third-Party Verification</span>
             </button>
             <button class="solution-tab" data-tab="fitness">
                 <span class="tab-icon">

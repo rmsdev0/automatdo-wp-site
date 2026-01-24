@@ -45,6 +45,12 @@
             name: 'CONTACT CENTER',
             shortName: 'SUPPORT',
             description: 'General customer support'
+        },
+        {
+            id: 'multilingual',
+            name: 'MULTILINGUAL',
+            shortName: 'GLOBAL',
+            description: 'Hotel concierge in 50+ languages'
         }
     ];
 
@@ -97,7 +103,8 @@
         tpv: { openai: 'alloy', xai: 'Charon' },
         fitness: { openai: 'shimmer', xai: 'Clio' },
         'home-services': { openai: 'echo', xai: 'Puck' },
-        'contact-center': { openai: 'sage', xai: 'Sage' }
+        'contact-center': { openai: 'sage', xai: 'Sage' },
+        'multilingual': { openai: 'nova', xai: 'Clio' }
     };
 
     // Introduction modes
