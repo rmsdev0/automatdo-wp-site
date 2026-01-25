@@ -161,6 +161,22 @@ function automatdo_scripts() {
         );
     }
 
+    if (is_page_template('page-faq.php')) {
+        wp_enqueue_style(
+            'automatdo-faq',
+            AUTOMATDO_URI . '/assets/css/faq.css',
+            array('automatdo-landing'),
+            AUTOMATDO_VERSION
+        );
+        wp_enqueue_script(
+            'automatdo-faq-js',
+            AUTOMATDO_URI . '/assets/js/faq.js',
+            array('automatdo-landing'),
+            AUTOMATDO_VERSION,
+            true
+        );
+    }
+
     // Main JavaScript
     wp_enqueue_script(
         'automatdo-landing',
