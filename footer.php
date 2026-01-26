@@ -21,13 +21,13 @@
                     <div class="footer-column">
                         <h4>Solutions</h4>
                         <a href="<?php echo home_url('/solutions/tpv/'); ?>">TPV Verification</a>
-                        <a href="#">Contact Centers</a>
+                        <a href="/">Contact Centers</a>
                         <a href="<?php echo home_url('/solutions/home-services/'); ?>">Home Services</a>
                         <a href="<?php echo home_url('/solutions/fitness/'); ?>">Fitness & Wellness</a>
                     </div>
                     <div class="footer-column">
                         <h4>Company</h4>
-                        <a href="#">About</a>
+                        <a href="/about/">About</a>
                         <a href="<?php echo home_url('/blog/'); ?>">Blog</a>
                         <a href="<?php echo home_url('/contact/'); ?>">Contact</a>
                     </div>
