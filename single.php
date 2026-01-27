@@ -39,7 +39,7 @@ get_header();
                             <a class="author-name" href="<?php echo esc_url(get_author_posts_url(get_the_author_meta('ID'))); ?>" rel="author">
                                 <?php the_author(); ?>
                             </a>
-                            <span class="author-role"><?php echo get_the_author_meta('description') ?: 'Automatdo Team'; ?></span>
+                            <span class="author-role"><?php echo get_user_meta(get_the_author_meta('ID'), 'automatdo_job_title', true) ?: 'Automatdo Team'; ?></span>
                         </div>
                     </div>
                     <div class="article-stats">
