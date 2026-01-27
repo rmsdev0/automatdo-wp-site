@@ -111,6 +111,18 @@
     max-width: 600px;
 }
 
+.author-bio a {
+    color: var(--accent-primary);
+    text-decoration: underline;
+    text-decoration-color: var(--accent-primary);
+    text-underline-offset: 3px;
+    transition: color var(--transition-fast);
+}
+
+.author-bio a:hover {
+    color: var(--accent-secondary);
+}
+
 /* ---------- Author Stats ---------- */
 .author-meta-stats {
     display: flex;
@@ -149,12 +161,14 @@
 /* ---------- Author Links ---------- */
 .author-links {
     display: flex;
-    gap: var(--space-md);
+    flex-wrap: wrap;
+    gap: var(--space-sm);
 }
 
-.author-website-link {
+.author-link {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: var(--space-sm);
     padding: 0.625rem 1rem;
     font-size: 0.875rem;
@@ -166,14 +180,65 @@
     transition: all var(--transition-base);
 }
 
+.author-link:hover {
+    color: var(--text-primary);
+    border-color: var(--border-medium);
+    background: var(--bg-elevated);
+}
+
+.author-link svg {
+    flex-shrink: 0;
+}
+
+.author-link .link-label {
+    display: inline;
+}
+
+/* Website link - gold accent on hover */
 .author-website-link:hover {
     color: var(--accent-primary);
     border-color: var(--accent-primary);
     background: rgba(212, 165, 48, 0.05);
 }
 
-.author-website-link svg {
-    flex-shrink: 0;
+/* Social link specific styles */
+.author-social-link {
+    padding: 0.625rem;
+}
+
+.author-social-link .link-label {
+    display: none;
+}
+
+/* Social platform colors on hover */
+.author-social-twitter:hover {
+    color: #000000;
+    border-color: #000000;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .author-social-twitter:hover {
+    color: #000000;
+    border-color: #000000;
+    background: rgba(0, 0, 0, 0.08);
+}
+
+.author-social-linkedin:hover {
+    color: #0A66C2;
+    border-color: #0A66C2;
+    background: rgba(10, 102, 194, 0.08);
+}
+
+.author-social-facebook:hover {
+    color: #1877F2;
+    border-color: #1877F2;
+    background: rgba(24, 119, 242, 0.08);
+}
+
+.author-social-youtube:hover {
+    color: #FF0000;
+    border-color: #FF0000;
+    background: rgba(255, 0, 0, 0.08);
 }
 
 /* ---------- Author Articles Section ---------- */
@@ -488,6 +553,7 @@
 
     .author-links {
         justify-content: center;
+        flex-wrap: wrap;
     }
 
     .author-articles {

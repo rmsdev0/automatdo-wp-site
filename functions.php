@@ -691,9 +691,25 @@ function automatdo_author_schema() {
         'jobTitle' => 'Content Contributor',
     );
 
-    // Add website URL if available
+    // Build sameAs array with website and social links
+    $same_as = array();
     if ($author_url) {
-        $schema['sameAs'] = array($author_url);
+        $same_as[] = $author_url;
+    }
+
+    // Add social media links to sameAs
+    $twitter = get_user_meta($author_id, 'automatdo_twitter', true);
+    $linkedin = get_user_meta($author_id, 'automatdo_linkedin', true);
+    $facebook = get_user_meta($author_id, 'automatdo_facebook', true);
+    $youtube = get_user_meta($author_id, 'automatdo_youtube', true);
+
+    if ($twitter) $same_as[] = $twitter;
+    if ($linkedin) $same_as[] = $linkedin;
+    if ($facebook) $same_as[] = $facebook;
+    if ($youtube) $same_as[] = $youtube;
+
+    if (!empty($same_as)) {
+        $schema['sameAs'] = $same_as;
     }
 
     // Add image if gravatar is available
@@ -787,3 +803,187 @@ function automatdo_redirect_author_base() {
     }
 }
 add_action('template_redirect', 'automatdo_redirect_author_base');
+
+/**
+ * =============================================================================
+ * AUTHOR SOCIAL MEDIA FIELDS
+ * =============================================================================
+ */
+
+/**
+ * Add custom social media fields to user profile in wp-admin
+ */
+function automatdo_user_social_fields($user) {
+    ?>
+    <h3>Author Page SEO</h3>
+    <table class="form-table">
+        <tr>
+            <th><label for="automatdo_meta_description">Meta Description</label></th>
+            <td>
+                <textarea name="automatdo_meta_description" id="automatdo_meta_description"
+                          rows="3" cols="50" class="large-text"
+                          placeholder="A brief description of the author for search engines (150-160 characters recommended)"><?php echo esc_textarea(get_user_meta($user->ID, 'automatdo_meta_description', true)); ?></textarea>
+                <p class="description">
+                    This description appears in search engine results for your author page.
+                    <span id="meta-char-count"></span>
+                </p>
+                <script>
+                    (function() {
+                        var textarea = document.getElementById('automatdo_meta_description');
+                        var counter = document.getElementById('meta-char-count');
+                        function updateCount() {
+                            var len = textarea.value.length;
+                            var color = len > 160 ? '#d63638' : (len > 140 ? '#dba617' : '#00a32a');
+                            counter.innerHTML = '<span style="color:' + color + '">' + len + '/160 characters</span>';
+                        }
+                        textarea.addEventListener('input', updateCount);
+                        updateCount();
+                    })();
+                </script>
+            </td>
+        </tr>
+    </table>
+
+    <h3>Social Media Profiles</h3>
+    <p class="description">Add your social media profile URLs. These will be displayed on your author page.</p>
+    <table class="form-table">
+        <tr>
+            <th><label for="automatdo_twitter">X (Twitter)</label></th>
+            <td>
+                <input type="url" name="automatdo_twitter" id="automatdo_twitter"
+                       value="<?php echo esc_attr(get_user_meta($user->ID, 'automatdo_twitter', true)); ?>"
+                       class="regular-text" placeholder="https://x.com/username" />
+                <p class="description">Your X (formerly Twitter) profile URL</p>
+            </td>
+        </tr>
+        <tr>
+            <th><label for="automatdo_linkedin">LinkedIn</label></th>
+            <td>
+                <input type="url" name="automatdo_linkedin" id="automatdo_linkedin"
+                       value="<?php echo esc_attr(get_user_meta($user->ID, 'automatdo_linkedin', true)); ?>"
+                       class="regular-text" placeholder="https://linkedin.com/in/username" />
+                <p class="description">Your LinkedIn profile URL</p>
+            </td>
+        </tr>
+        <tr>
+            <th><label for="automatdo_facebook">Facebook</label></th>
+            <td>
+                <input type="url" name="automatdo_facebook" id="automatdo_facebook"
+                       value="<?php echo esc_attr(get_user_meta($user->ID, 'automatdo_facebook', true)); ?>"
+                       class="regular-text" placeholder="https://facebook.com/username" />
+                <p class="description">Your Facebook profile URL</p>
+            </td>
+        </tr>
+        <tr>
+            <th><label for="automatdo_youtube">YouTube</label></th>
+            <td>
+                <input type="url" name="automatdo_youtube" id="automatdo_youtube"
+                       value="<?php echo esc_attr(get_user_meta($user->ID, 'automatdo_youtube', true)); ?>"
+                       class="regular-text" placeholder="https://youtube.com/@channel" />
+                <p class="description">Your YouTube channel URL</p>
+            </td>
+        </tr>
+    </table>
+    <?php
+}
+add_action('show_user_profile', 'automatdo_user_social_fields');
+add_action('edit_user_profile', 'automatdo_user_social_fields');
+
+/**
+ * Save custom social media fields and meta description
+ */
+function automatdo_save_user_social_fields($user_id) {
+    if (!current_user_can('edit_user', $user_id)) {
+        return false;
+    }
+
+    // Save meta description
+    if (isset($_POST['automatdo_meta_description'])) {
+        update_user_meta($user_id, 'automatdo_meta_description', sanitize_textarea_field($_POST['automatdo_meta_description']));
+    }
+
+    // Save social fields
+    $social_fields = array('automatdo_twitter', 'automatdo_linkedin', 'automatdo_facebook', 'automatdo_youtube');
+
+    foreach ($social_fields as $field) {
+        if (isset($_POST[$field])) {
+            update_user_meta($user_id, $field, esc_url_raw($_POST[$field]));
+        }
+    }
+}
+add_action('personal_options_update', 'automatdo_save_user_social_fields');
+add_action('edit_user_profile_update', 'automatdo_save_user_social_fields');
+
+/**
+ * Output author meta description for author archive pages
+ */
+function automatdo_author_meta_description() {
+    if (!is_author()) {
+        return;
+    }
+
+    $author_id = get_queried_object_id();
+    $meta_description = get_user_meta($author_id, 'automatdo_meta_description', true);
+
+    // Fallback to bio excerpt if no custom meta description
+    if (empty($meta_description)) {
+        $author_bio = get_the_author_meta('description', $author_id);
+        if ($author_bio) {
+            $meta_description = wp_trim_words(wp_strip_all_tags($author_bio), 25, '...');
+        } else {
+            $author_name = get_the_author_meta('display_name', $author_id);
+            $meta_description = 'Read articles by ' . $author_name . ' on the Automatdo blog. Insights on AI voice agents and enterprise automation.';
+        }
+    }
+
+    if ($meta_description) {
+        echo '<meta name="description" content="' . esc_attr($meta_description) . '">' . "\n";
+    }
+}
+add_action('wp_head', 'automatdo_author_meta_description', 1);
+
+/**
+ * Get author social links
+ * Returns an array of social media links for the given author
+ */
+function automatdo_get_author_social_links($author_id) {
+    $social_links = array();
+
+    $twitter = get_user_meta($author_id, 'automatdo_twitter', true);
+    if ($twitter) {
+        $social_links['twitter'] = array(
+            'url' => $twitter,
+            'label' => 'X',
+            'icon' => '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>',
+        );
+    }
+
+    $linkedin = get_user_meta($author_id, 'automatdo_linkedin', true);
+    if ($linkedin) {
+        $social_links['linkedin'] = array(
+            'url' => $linkedin,
+            'label' => 'LinkedIn',
+            'icon' => '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>',
+        );
+    }
+
+    $facebook = get_user_meta($author_id, 'automatdo_facebook', true);
+    if ($facebook) {
+        $social_links['facebook'] = array(
+            'url' => $facebook,
+            'label' => 'Facebook',
+            'icon' => '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>',
+        );
+    }
+
+    $youtube = get_user_meta($author_id, 'automatdo_youtube', true);
+    if ($youtube) {
+        $social_links['youtube'] = array(
+            'url' => $youtube,
+            'label' => 'YouTube',
+            'icon' => '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>',
+        );
+    }
+
+    return $social_links;
+}
