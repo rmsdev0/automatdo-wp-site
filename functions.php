@@ -638,3 +638,34 @@ function automatdo_website_schema() {
     echo "\n" . '</script>' . "\n";
 }
 add_action('wp_head', 'automatdo_website_schema', 5);
+
+/**
+ * Customize author archive base to live under /blog/author/
+ */
+function automatdo_set_author_base() {
+    global $wp_rewrite;
+    $wp_rewrite->author_base = 'blog/author';
+}
+add_action('init', 'automatdo_set_author_base');
+
+/**
+ * Redirect legacy /author/ URLs to the new author base
+ */
+function automatdo_redirect_author_base() {
+    if (!is_author()) {
+        return;
+    }
+
+    $author_id = get_queried_object_id();
+    if (!$author_id) {
+        return;
+    }
+
+    $target = get_author_posts_url($author_id);
+    $current = home_url(add_query_arg(array(), $GLOBALS['wp']->request));
+    if ($target && $current && untrailingslashit($current) !== untrailingslashit($target)) {
+        wp_safe_redirect($target, 301);
+        exit;
+    }
+}
+add_action('template_redirect', 'automatdo_redirect_author_base');
