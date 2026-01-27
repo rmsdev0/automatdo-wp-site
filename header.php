@@ -40,8 +40,9 @@
         "description": "Enterprise-grade AI voice agents for contact centers, TPV verification, and customer service. Deploy in minutes with sub-700ms latency and 50+ language support.",
         "offers": {
             "@type": "Offer",
-            "price": "0",
             "priceCurrency": "USD",
+            "availability": "https://schema.org/InStock",
+            "url": "<?php echo home_url('/#demo'); ?>",
             "description": "Contact for pricing"
         },
         "featureList": [

@@ -19,7 +19,10 @@ function initCategoryFilters() {
     if (!filterButtons.length) return;
 
     filterButtons.forEach(button => {
-        button.addEventListener('click', () => {
+        button.addEventListener('click', (event) => {
+            if (button.tagName === 'A' && !(event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)) {
+                event.preventDefault();
+            }
             const filter = button.dataset.filter;
 
             // Update active button

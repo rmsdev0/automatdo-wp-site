@@ -26,14 +26,14 @@ get_header();
 
                     <!-- Category Filter (optional) -->
                     <div class="category-filters">
-                        <button class="category-filter active" data-category="all">All Posts</button>
+                        <a class="category-filter active" data-category="all" href="<?php echo esc_url(home_url('/blog/')); ?>">All Posts</a>
                         <?php
                         $categories = get_categories(array('hide_empty' => true));
                         foreach ($categories as $category) :
                         ?>
-                            <button class="category-filter" data-category="<?php echo esc_attr($category->slug); ?>">
+                            <a class="category-filter" data-category="<?php echo esc_attr($category->slug); ?>" href="<?php echo esc_url(get_category_link($category->term_id)); ?>">
                                 <?php echo esc_html($category->name); ?>
-                            </button>
+                            </a>
                         <?php endforeach; ?>
                     </div>
 

@@ -52,11 +52,11 @@ $categories = get_categories(array('hide_empty' => true));
 
                 <!-- Category Filter -->
                 <div class="blog-filters">
-                    <button class="filter-btn active" data-filter="all">All Posts</button>
+                    <a class="filter-btn active" data-filter="all" href="<?php echo esc_url(home_url('/blog/')); ?>">All Posts</a>
                     <?php foreach ($categories as $category) : ?>
-                        <button class="filter-btn" data-filter="<?php echo esc_attr($category->slug); ?>">
+                        <a class="filter-btn" data-filter="<?php echo esc_attr($category->slug); ?>" href="<?php echo esc_url(get_category_link($category->term_id)); ?>">
                             <?php echo esc_html($category->name); ?>
-                        </button>
+                        </a>
                     <?php endforeach; ?>
                 </div>
             </div>

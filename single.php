@@ -21,7 +21,7 @@ get_header();
                     <?php
                     $categories = get_the_category();
                     if ($categories) {
-                        echo '<span>' . esc_html($categories[0]->name) . '</span>';
+                        echo '<a href="' . esc_url(get_category_link($categories[0]->term_id)) . '">' . esc_html($categories[0]->name) . '</a>';
                     }
                     ?>
                 </nav>
@@ -36,7 +36,9 @@ get_header();
                     <div class="article-author">
                         <div class="author-avatar"><?php echo automatdo_get_author_initials(); ?></div>
                         <div class="author-info">
-                            <span class="author-name"><?php the_author(); ?></span>
+                            <a class="author-name" href="<?php echo esc_url(get_author_posts_url(get_the_author_meta('ID'))); ?>" rel="author">
+                                <?php the_author(); ?>
+                            </a>
                             <span class="author-role"><?php echo get_the_author_meta('description') ?: 'Automatdo Team'; ?></span>
                         </div>
                     </div>
