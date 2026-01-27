@@ -14,7 +14,7 @@
         "@context": "https://schema.org",
         "@type": "Organization",
         "name": "Automatdo",
-        "legalName": "Automatdo, Inc.",
+        "legalName": "Automatdo LLC",
         "url": "<?php echo home_url(); ?>",
         "logo": "<?php echo get_template_directory_uri(); ?>/assets/images/icon.png",
         "description": "AI-powered voice agents for enterprise contact centers, TPV verification, and customer service.",
@@ -26,7 +26,7 @@
         "contactPoint": {
             "@type": "ContactPoint",
             "contactType": "sales",
-            "email": "rschuetz@automatdo.com"
+            "email": "info@automatdo.com"
         }
     }
     </script>
