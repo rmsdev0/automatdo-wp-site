@@ -778,46 +778,8 @@ add_action('wp_head', 'automatdo_author_schema', 5);
 function automatdo_set_author_base() {
     global $wp_rewrite;
     $wp_rewrite->author_base = 'blog/author';
-    $wp_rewrite->author_structure = '/blog/author/%author%';
 }
 add_action('init', 'automatdo_set_author_base');
-
-/**
- * Add rewrite rules for author pagination
- */
-function automatdo_author_rewrite_rules() {
-    add_rewrite_rule(
-        'blog/author/([^/]+)/page/([0-9]+)/?$',
-        'index.php?author_name=$matches[1]&paged=$matches[2]',
-        'top'
-    );
-    add_rewrite_rule(
-        'blog/author/([^/]+)/?$',
-        'index.php?author_name=$matches[1]',
-        'top'
-    );
-}
-add_action('init', 'automatdo_author_rewrite_rules');
-
-/**
- * Flush rewrite rules on theme activation
- */
-function automatdo_flush_rewrite_rules() {
-    automatdo_set_author_base();
-    automatdo_author_rewrite_rules();
-    flush_rewrite_rules();
-}
-add_action('after_switch_theme', 'automatdo_flush_rewrite_rules');
-
-/**
- * One-time rewrite flush - DELETE THIS AFTER IT RUNS ONCE
- */
-if (!get_option('automatdo_rewrite_flushed_v2')) {
-    add_action('init', function() {
-        flush_rewrite_rules();
-        update_option('automatdo_rewrite_flushed_v2', true);
-    }, 999);
-}
 
 /**
  * Set posts per page for author archives
@@ -828,6 +790,60 @@ function automatdo_author_posts_per_page($query) {
     }
 }
 add_action('pre_get_posts', 'automatdo_author_posts_per_page');
+
+/**
+ * AJAX handler for loading more author posts
+ */
+function automatdo_load_more_author_posts() {
+    $author_id = intval($_POST['author_id']);
+    $page = intval($_POST['page']);
+    $posts_per_page = 4;
+
+    $args = array(
+        'author' => $author_id,
+        'post_type' => 'post',
+        'post_status' => 'publish',
+        'posts_per_page' => $posts_per_page,
+        'paged' => $page,
+    );
+
+    $query = new WP_Query($args);
+
+    if ($query->have_posts()) :
+        while ($query->have_posts()) : $query->the_post();
+            $categories = get_the_category();
+            ?>
+            <article class="author-post-card">
+                <a href="<?php the_permalink(); ?>" class="author-post-link">
+                    <div class="author-post-content">
+                        <div class="author-post-meta">
+                            <?php if ($categories) : ?>
+                            <span class="post-category"><?php echo esc_html($categories[0]->name); ?></span>
+                            <?php endif; ?>
+                            <span class="post-date"><?php echo get_the_date('M j, Y'); ?></span>
+                        </div>
+                        <h3 class="author-post-title"><?php the_title(); ?></h3>
+                        <p class="author-post-excerpt"><?php echo wp_trim_words(get_the_excerpt(), 18, '...'); ?></p>
+                        <div class="author-post-footer">
+                            <span class="read-time"><?php echo automatdo_reading_time(); ?> min read</span>
+                            <span class="read-more-arrow" aria-hidden="true">
+                                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                                    <path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            </article>
+            <?php
+        endwhile;
+        wp_reset_postdata();
+    endif;
+
+    wp_die();
+}
+add_action('wp_ajax_load_more_author_posts', 'automatdo_load_more_author_posts');
+add_action('wp_ajax_nopriv_load_more_author_posts', 'automatdo_load_more_author_posts');
 // function automatdo_redirect_author_base() { ... }
 
 /**

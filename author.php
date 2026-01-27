@@ -121,7 +121,7 @@ $writing_since = $first_post ? get_the_date('Y', $first_post[0]) : date('Y');
                 </header>
 
                 <?php if (have_posts()) : ?>
-                <div class="author-posts-grid">
+                <div class="author-posts-grid" id="author-posts-grid">
                     <?php while (have_posts()) : the_post(); ?>
                         <article class="author-post-card">
                             <a href="<?php the_permalink(); ?>" class="author-post-link">
@@ -151,27 +151,21 @@ $writing_since = $first_post ? get_the_date('Y', $first_post[0]) : date('Y');
                     <?php endwhile; ?>
                 </div>
 
-                <!-- Pagination -->
+                <!-- Load More Button -->
                 <?php
                 global $wp_query;
                 $total_pages = $wp_query->max_num_pages;
                 if ($total_pages > 1) :
-                    $author_url = get_author_posts_url($author_id);
-                    $current_page = max(1, get_query_var('paged', 1));
                 ?>
-                <nav class="author-pagination" aria-label="Author posts pagination">
-                    <?php
-                    echo paginate_links(array(
-                        'base' => $author_url . '%_%',
-                        'format' => '?paged=%#%',
-                        'total' => $total_pages,
-                        'current' => $current_page,
-                        'prev_text' => '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15 4L9 10L15 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="screen-reader-text">Previous</span>',
-                        'next_text' => '<span class="screen-reader-text">Next</span><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 4L11 10L5 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-                        'type' => 'list',
-                    ));
-                    ?>
-                </nav>
+                <div class="author-load-more-container">
+                    <button class="author-load-more-btn" id="author-load-more"
+                            data-author-id="<?php echo esc_attr($author_id); ?>"
+                            data-page="1"
+                            data-max-pages="<?php echo esc_attr($total_pages); ?>">
+                        <span class="btn-text">Load More Articles</span>
+                        <span class="btn-loading" style="display: none;">Loading...</span>
+                    </button>
+                </div>
                 <?php endif; ?>
 
                 <?php else : ?>
@@ -198,5 +192,61 @@ $writing_since = $first_post ? get_the_date('Y', $first_post[0]) : date('Y');
             </div>
         </section>
     </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const loadMoreBtn = document.getElementById('author-load-more');
+    if (!loadMoreBtn) return;
+
+    const grid = document.getElementById('author-posts-grid');
+    const btnText = loadMoreBtn.querySelector('.btn-text');
+    const btnLoading = loadMoreBtn.querySelector('.btn-loading');
+
+    loadMoreBtn.addEventListener('click', function() {
+        const authorId = this.dataset.authorId;
+        let page = parseInt(this.dataset.page);
+        const maxPages = parseInt(this.dataset.maxPages);
+
+        page++;
+
+        // Show loading state
+        btnText.style.display = 'none';
+        btnLoading.style.display = 'inline';
+        loadMoreBtn.disabled = true;
+
+        const formData = new FormData();
+        formData.append('action', 'load_more_author_posts');
+        formData.append('author_id', authorId);
+        formData.append('page', page);
+
+        fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(html => {
+            if (html.trim()) {
+                grid.insertAdjacentHTML('beforeend', html);
+                loadMoreBtn.dataset.page = page;
+
+                if (page >= maxPages) {
+                    loadMoreBtn.style.display = 'none';
+                }
+            }
+
+            // Reset button state
+            btnText.style.display = 'inline';
+            btnLoading.style.display = 'none';
+            loadMoreBtn.disabled = false;
+        })
+        .catch(error => {
+            console.error('Error loading posts:', error);
+            btnText.style.display = 'inline';
+            btnLoading.style.display = 'none';
+            loadMoreBtn.disabled = false;
+        });
+    });
+});
+</script>
 
 <?php get_footer(); ?>
