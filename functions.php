@@ -87,6 +87,16 @@ function automatdo_scripts() {
         );
     }
 
+    // Author page stylesheet
+    if (is_author()) {
+        wp_enqueue_style(
+            'automatdo-author',
+            AUTOMATDO_URI . '/assets/css/author.css',
+            array('automatdo-landing'),
+            AUTOMATDO_VERSION
+        );
+    }
+
     // Solution page stylesheets (conditionally loaded based on page template)
     if (is_page_template('page-tpv.php')) {
         wp_enqueue_style(
@@ -638,6 +648,113 @@ function automatdo_website_schema() {
     echo "\n" . '</script>' . "\n";
 }
 add_action('wp_head', 'automatdo_website_schema', 5);
+
+/**
+ * Add Person Schema (JSON-LD) for author pages - E-E-A-T optimization
+ * Outputs structured data for better search engine understanding of author expertise
+ */
+function automatdo_author_schema() {
+    if (!is_author()) {
+        return;
+    }
+
+    $author_id = get_queried_object_id();
+    $author_name = get_the_author_meta('display_name', $author_id);
+    $author_bio = get_the_author_meta('description', $author_id);
+    $author_url = get_the_author_meta('user_url', $author_id);
+    $author_email = get_the_author_meta('user_email', $author_id);
+
+    // Get author's post count for expertise indicator
+    $post_count = count_user_posts($author_id, 'post', true);
+
+    // Get author's first post for experience timeline
+    $first_post = get_posts(array(
+        'author' => $author_id,
+        'posts_per_page' => 1,
+        'orderby' => 'date',
+        'order' => 'ASC',
+        'post_status' => 'publish',
+    ));
+
+    // Build Person schema
+    $schema = array(
+        '@context' => 'https://schema.org',
+        '@type' => 'Person',
+        'name' => $author_name,
+        'url' => get_author_posts_url($author_id),
+        'description' => $author_bio ?: 'Contributing writer at Automatdo, covering AI voice technology and enterprise automation solutions.',
+        'worksFor' => array(
+            '@type' => 'Organization',
+            'name' => 'Automatdo',
+            'url' => home_url('/'),
+        ),
+        'jobTitle' => 'Content Contributor',
+    );
+
+    // Add website URL if available
+    if ($author_url) {
+        $schema['sameAs'] = array($author_url);
+    }
+
+    // Add image if gravatar is available
+    $avatar_url = get_avatar_url($author_id, array('size' => 256));
+    if ($avatar_url) {
+        $schema['image'] = $avatar_url;
+    }
+
+    // Add knowledge graph hints for expertise
+    $schema['knowsAbout'] = array(
+        'AI Voice Agents',
+        'Enterprise Automation',
+        'Third-Party Verification',
+        'Contact Center Technology',
+        'Business Process Automation',
+    );
+
+    echo '<script type="application/ld+json">' . "\n";
+    echo wp_json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+    echo "\n" . '</script>' . "\n";
+
+    // Also output ProfilePage schema for the page itself
+    $profile_schema = array(
+        '@context' => 'https://schema.org',
+        '@type' => 'ProfilePage',
+        'name' => $author_name . ' - Author at Automatdo',
+        'url' => get_author_posts_url($author_id),
+        'mainEntity' => array(
+            '@type' => 'Person',
+            'name' => $author_name,
+        ),
+        'breadcrumb' => array(
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => array(
+                array(
+                    '@type' => 'ListItem',
+                    'position' => 1,
+                    'name' => 'Home',
+                    'item' => home_url('/'),
+                ),
+                array(
+                    '@type' => 'ListItem',
+                    'position' => 2,
+                    'name' => 'Blog',
+                    'item' => home_url('/blog/'),
+                ),
+                array(
+                    '@type' => 'ListItem',
+                    'position' => 3,
+                    'name' => $author_name,
+                    'item' => get_author_posts_url($author_id),
+                ),
+            ),
+        ),
+    );
+
+    echo '<script type="application/ld+json">' . "\n";
+    echo wp_json_encode($profile_schema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+    echo "\n" . '</script>' . "\n";
+}
+add_action('wp_head', 'automatdo_author_schema', 5);
 
 /**
  * Customize author archive base to live under /blog/author/
