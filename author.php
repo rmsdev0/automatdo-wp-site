@@ -156,10 +156,13 @@ $writing_since = $first_post ? get_the_date('Y', $first_post[0]) : date('Y');
                 global $wp_query;
                 $total_pages = $wp_query->max_num_pages;
                 if ($total_pages > 1) :
+                    $author_url = get_author_posts_url($author_id);
                 ?>
                 <nav class="author-pagination" aria-label="Author posts pagination">
                     <?php
                     echo paginate_links(array(
+                        'base' => trailingslashit($author_url) . 'page/%#%/',
+                        'format' => '',
                         'total' => $total_pages,
                         'current' => max(1, get_query_var('paged')),
                         'prev_text' => '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15 4L9 10L15 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="screen-reader-text">Previous</span>',
