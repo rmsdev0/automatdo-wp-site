@@ -644,8 +644,8 @@ add_action('wp_head', 'automatdo_website_schema', 5);
  */
 function automatdo_set_author_base() {
     global $wp_rewrite;
-    $home_path = trim((string) wp_parse_url(home_url('/'), PHP_URL_PATH), '/');
-    $wp_rewrite->author_base = ($home_path === 'blog') ? 'author' : 'blog/author';
+    $front = trim((string) $wp_rewrite->front, '/');
+    $wp_rewrite->author_base = $front ? 'author' : 'blog/author';
 }
 add_action('init', 'automatdo_set_author_base');
 
