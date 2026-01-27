@@ -132,25 +132,23 @@ get_header();
                 </div>
                 <div class="founder-card">
                     <div class="founder-image-wrapper">
-                        <div class="founder-image-placeholder">
-                            <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-                                <circle cx="40" cy="32" r="16" stroke="currentColor" stroke-width="2.5"/>
-                                <path d="M12 68c0-15.5 12.5-28 28-28s28 12.5 28 28" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-                            </svg>
-                            <span>Photo</span>
-                        </div>
+                        <img src="<?php echo get_template_directory_uri(); ?>/assets/images/ryan_pfp_linkedin.jpeg"
+                             alt="Ryan Schuetz - Founder & CEO of Automatdo"
+                             class="founder-image"
+                             itemprop="image"
+                             loading="lazy">
                     </div>
                     <div class="founder-info">
                         <div class="founder-header">
                             <div class="founder-titles">
-                                <h3 class="founder-name" itemprop="name">[Founder Name]</h3>
+                                <h3 class="founder-name" itemprop="name">Ryan Schuetz</h3>
                                 <span class="founder-role" itemprop="jobTitle">Founder & CEO</span>
                             </div>
-                            <a href="https://linkedin.com/in/placeholder"
+                            <a href="https://www.linkedin.com/in/ryanschuetz/"
                                class="founder-linkedin"
                                target="_blank"
                                rel="noopener noreferrer"
-                               aria-label="Connect on LinkedIn"
+                               aria-label="Connect with Ryan on LinkedIn"
                                itemprop="sameAs">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
@@ -160,37 +158,30 @@ get_header();
                         </div>
                         <div class="founder-bio" itemprop="description">
                             <p>
-                                [Founder Name] brings [X years] of experience in [industry/field] to Automatdo.
-                                Before founding Automatdo, they [previous experience/achievements]. Their background
-                                in [relevant expertise] drives the company's commitment to building AI voice agents
-                                that truly understand business needs.
+                                Ryan brings 25 years of experience in technology and entrepreneurship to Automatdo.
+                                Before founding Automatdo, he built and scaled HelloGym, gaining firsthand insight
+                                into the challenges businesses face managing customer communications at scale.
                             </p>
                             <p>
-                                Passionate about the intersection of AI and human communication, [Founder Name]
-                                leads Automatdo's mission to transform how businesses connect with their customers
+                                Passionate about the intersection of AI and human communication, Ryan leads
+                                Automatdo's mission to transform how businesses connect with their customers
                                 through intelligent voice technology.
                             </p>
                         </div>
                         <div class="founder-credentials">
                             <div class="credential-item">
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                    <path d="M10 2L2 6v4c0 5.5 3.4 10.7 8 12 4.6-1.3 8-6.5 8-12V6l-8-4z" stroke="currentColor" stroke-width="1.5"/>
-                                    <path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <path d="M12 3L4 7v4c0 5.5 3.6 10.7 8 12 4.4-1.3 8-6.5 8-12V7l-8-4z" stroke="currentColor" stroke-width="1.5"/>
+                                    <path d="M8 12l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
-                                <span>[Years] in [Industry]</span>
+                                <span>25+ Years in Tech</span>
                             </div>
                             <div class="credential-item">
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                    <rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                                    <path d="M6 2v4M14 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <rect x="3" y="6" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                                    <path d="M8 3v5M16 3v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                                 </svg>
-                                <span>Previously at [Company]</span>
-                            </div>
-                            <div class="credential-item">
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                    <path d="M10 2l2.5 5 5.5.8-4 3.9.9 5.5L10 14.7l-4.9 2.5.9-5.5-4-3.9 5.5-.8L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                                <span>[Notable Achievement]</span>
+                                <span>Founded HelloGym</span>
                             </div>
                         </div>
                     </div>

@@ -177,6 +177,22 @@ function automatdo_scripts() {
         );
     }
 
+    if (is_page_template('page-features.php')) {
+        wp_enqueue_style(
+            'automatdo-features',
+            AUTOMATDO_URI . '/assets/css/features.css',
+            array('automatdo-landing'),
+            AUTOMATDO_VERSION
+        );
+        wp_enqueue_script(
+            'automatdo-features-js',
+            AUTOMATDO_URI . '/assets/js/features.js',
+            array('automatdo-landing'),
+            AUTOMATDO_VERSION,
+            true
+        );
+    }
+
     // Main JavaScript
     wp_enqueue_script(
         'automatdo-landing',
