@@ -777,10 +777,47 @@ add_action('wp_head', 'automatdo_author_schema', 5);
  */
 function automatdo_set_author_base() {
     global $wp_rewrite;
-    $front = trim((string) $wp_rewrite->front, '/');
-    $wp_rewrite->author_base = $front ? 'author' : 'blog/author';
+    $wp_rewrite->author_base = 'blog/author';
+    $wp_rewrite->author_structure = '/blog/author/%author%';
 }
 add_action('init', 'automatdo_set_author_base');
+
+/**
+ * Add rewrite rules for author pagination
+ */
+function automatdo_author_rewrite_rules() {
+    add_rewrite_rule(
+        'blog/author/([^/]+)/page/([0-9]+)/?$',
+        'index.php?author_name=$matches[1]&paged=$matches[2]',
+        'top'
+    );
+    add_rewrite_rule(
+        'blog/author/([^/]+)/?$',
+        'index.php?author_name=$matches[1]',
+        'top'
+    );
+}
+add_action('init', 'automatdo_author_rewrite_rules');
+
+/**
+ * Flush rewrite rules on theme activation
+ */
+function automatdo_flush_rewrite_rules() {
+    automatdo_set_author_base();
+    automatdo_author_rewrite_rules();
+    flush_rewrite_rules();
+}
+add_action('after_switch_theme', 'automatdo_flush_rewrite_rules');
+
+/**
+ * One-time rewrite flush - DELETE THIS AFTER IT RUNS ONCE
+ */
+if (!get_option('automatdo_rewrite_flushed_v2')) {
+    add_action('init', function() {
+        flush_rewrite_rules();
+        update_option('automatdo_rewrite_flushed_v2', true);
+    }, 999);
+}
 
 /**
  * Set posts per page for author archives
@@ -791,33 +828,7 @@ function automatdo_author_posts_per_page($query) {
     }
 }
 add_action('pre_get_posts', 'automatdo_author_posts_per_page');
-
-/**
- * Redirect legacy /author/ URLs to the new author base
- */
-function automatdo_redirect_author_base() {
-    if (!is_author()) {
-        return;
-    }
-
-    $author_id = get_queried_object_id();
-    if (!$author_id) {
-        return;
-    }
-
-    // Don't redirect paginated pages
-    if (is_paged()) {
-        return;
-    }
-
-    $target = get_author_posts_url($author_id);
-    $current = home_url(add_query_arg(array(), $GLOBALS['wp']->request));
-    if ($target && $current && untrailingslashit($current) !== untrailingslashit($target)) {
-        wp_safe_redirect($target, 301);
-        exit;
-    }
-}
-add_action('template_redirect', 'automatdo_redirect_author_base');
+// function automatdo_redirect_author_base() { ... }
 
 /**
  * =============================================================================
