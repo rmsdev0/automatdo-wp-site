@@ -805,6 +805,11 @@ function automatdo_redirect_author_base() {
         return;
     }
 
+    // Don't redirect paginated pages
+    if (is_paged()) {
+        return;
+    }
+
     $target = get_author_posts_url($author_id);
     $current = home_url(add_query_arg(array(), $GLOBALS['wp']->request));
     if ($target && $current && untrailingslashit($current) !== untrailingslashit($target)) {
