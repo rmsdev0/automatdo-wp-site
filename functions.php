@@ -783,6 +783,16 @@ function automatdo_set_author_base() {
 add_action('init', 'automatdo_set_author_base');
 
 /**
+ * Set posts per page for author archives
+ */
+function automatdo_author_posts_per_page($query) {
+    if (!is_admin() && $query->is_main_query() && is_author()) {
+        $query->set('posts_per_page', 4);
+    }
+}
+add_action('pre_get_posts', 'automatdo_author_posts_per_page');
+
+/**
  * Redirect legacy /author/ URLs to the new author base
  */
 function automatdo_redirect_author_base() {
