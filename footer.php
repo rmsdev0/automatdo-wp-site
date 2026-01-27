@@ -14,7 +14,7 @@
                 <div class="footer-links">
                     <div class="footer-column">
                         <h4>Product</h4>
-                        <a href="<?php echo home_url('/#features'); ?>">Features</a>
+                        <a href="<?php echo home_url('/features'); ?>">Features</a>
                         <a href="<?php echo home_url('/#solutions'); ?>">Solutions</a>
                         <a href="<?php echo home_url('/#pricing'); ?>">Pricing</a>
                     </div>
