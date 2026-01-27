@@ -176,13 +176,22 @@ get_header();
                                 </svg>
                                 <span>25+ Years in Tech</span>
                             </div>
-                            <div class="credential-item">
+                            <a href="https://hellogym.io" target="_blank" rel="noopener noreferrer" class="credential-item credential-link">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                                    <rect x="3" y="6" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                                    <path d="M8 3v5M16 3v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                    <path d="M6 12h12M4 12a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 4a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm16-4a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 4a2 2 0 1 1 0-4 2 2 0 0 1 0 4z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                    <path d="M6 8v8M18 8v8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                                 </svg>
                                 <span>Founded HelloGym</span>
-                            </div>
+                            </a>
+                            <a href="https://safeteam.io" target="_blank" rel="noopener noreferrer" class="credential-item credential-link">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <circle cx="9" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/>
+                                    <circle cx="17" cy="7" r="2" stroke="currentColor" stroke-width="1.5"/>
+                                    <path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                    <path d="M17 11a3 3 0 0 1 3 3v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                </svg>
+                                <span>Founded SafeTeam</span>
+                            </a>
                         </div>
                     </div>
                 </div>

@@ -372,6 +372,17 @@
     flex-shrink: 0;
 }
 
+.credential-link {
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.credential-link:hover {
+    background: rgba(212, 165, 48, 0.18);
+    color: var(--accent-primary);
+}
+
 /* ---------- Values Section ---------- */
 .about-values {
     position: relative;
