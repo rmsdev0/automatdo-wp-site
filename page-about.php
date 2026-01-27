@@ -17,7 +17,7 @@ get_header();
                 <div class="story-wrapper">
                     <div class="story-header">
                         <span class="section-tag">Our Story</span>
-                        <h1 class="story-title" id="story-title">From frustration to innovation</h1>
+                        <h1 class="story-title" id="story-title">Built at the frontier of AI</h1>
                     </div>
                     <div class="story-timeline">
                         <div class="timeline-item">
@@ -25,11 +25,13 @@ get_header();
                                 <span class="timeline-year">2023</span>
                             </div>
                             <div class="timeline-content">
-                                <h3>The Problem</h3>
+                                <h3>The Origin</h3>
                                 <p>
-                                    After witnessing businesses lose countless opportunities due to missed calls and
-                                    overwhelmed support teams, we saw an opportunity. The technology to solve this
-                                    problem finally existed. What was missing was someone willing to build it right.
+                                    Automatdo was born at the dawn of large language models, in the height of
+                                    specialized machine learning. We started where the pain was greatest: contact
+                                    centers drowning in call volume with no way to ensure quality. Our first
+                                    product automated QA on inbound calls handled by human agents—analyzing
+                                    every conversation for compliance, sentiment, and performance. It still does.
                                 </p>
                             </div>
                         </div>
@@ -38,11 +40,15 @@ get_header();
                                 <span class="timeline-year">2024</span>
                             </div>
                             <div class="timeline-content">
-                                <h3>The Solution</h3>
+                                <h3>The Breakthrough</h3>
                                 <p>
-                                    Automatdo was born. We combined cutting-edge AI voice technology with deep
-                                    industry knowledge in TPV, fitness, home services, and customer support.
-                                    Our first agents went live, and the results exceeded all expectations.
+                                    Then OpenAI released real-time voice. The technology we'd been waiting for
+                                    finally existed. We didn't just add voice to a chatbot—we built from the
+                                    ground up. Industry-specific toolboxes for TPV compliance, fitness scheduling,
+                                    and home services dispatch. Deep integrations with Twilio, Google Calendar,
+                                    and CRMs. A flow builder that lets conversations branch naturally. Vector
+                                    search over every transcript. The result: AI agents that don't just talk,
+                                    they actually get things done.
                                 </p>
                             </div>
                         </div>
@@ -51,11 +57,14 @@ get_header();
                                 <span class="timeline-year">Today</span>
                             </div>
                             <div class="timeline-content">
-                                <h3>The Impact</h3>
+                                <h3>The Mission</h3>
                                 <p>
-                                    Over 10,000 calls automated, hundreds of appointments scheduled, and countless
-                                    customers served. We're just getting started on our mission to make world-class
-                                    voice AI accessible to every business.
+                                    We're building the infrastructure for voice-first AI. Every call recorded,
+                                    transcribed, and searchable. Every appointment booked directly to calendars.
+                                    Every compliance requirement tracked and verified. Whether you need to
+                                    automate calls or augment your human agents with real-time intelligence,
+                                    we're making world-class voice AI accessible to businesses that refuse to
+                                    miss another opportunity.
                                 </p>
                             </div>
                         </div>
