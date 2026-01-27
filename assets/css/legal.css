@@ -1,0 +1,264 @@
+/* ============================================
+   AUTOMATDO LEGAL PAGE STYLES
+   Privacy Policy, Terms of Service, etc.
+   Extends landing.css design system
+   ============================================ */
+
+/* ---------- Legal Header ---------- */
+.legal-page {
+    min-height: 100vh;
+}
+
+.legal-header {
+    padding-top: 10rem;
+    padding-bottom: var(--space-2xl);
+    background: linear-gradient(180deg, var(--bg-elevated) 0%, var(--bg-base) 100%);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.legal-header-content {
+    max-width: 800px;
+}
+
+.legal-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin-bottom: var(--space-md);
+}
+
+.legal-updated {
+    font-size: 0.9375rem;
+    color: var(--text-tertiary);
+}
+
+/* ---------- Legal Content ---------- */
+.legal-content {
+    padding: var(--space-3xl) 0;
+}
+
+.legal-body {
+    max-width: 800px;
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+}
+
+/* Typography for WordPress content */
+.legal-body h1,
+.legal-body h2,
+.legal-body h3,
+.legal-body h4,
+.legal-body h5,
+.legal-body h6 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-top: var(--space-2xl);
+    margin-bottom: var(--space-lg);
+    line-height: 1.3;
+}
+
+.legal-body h1 {
+    font-size: 2rem;
+}
+
+.legal-body h2 {
+    font-size: 1.5rem;
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.legal-body h3 {
+    font-size: 1.25rem;
+}
+
+.legal-body h4 {
+    font-size: 1.125rem;
+}
+
+.legal-body p {
+    margin-bottom: var(--space-lg);
+}
+
+.legal-body a {
+    color: var(--brand-primary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color var(--transition-fast);
+}
+
+.legal-body a:hover {
+    color: var(--brand-primary-hover);
+}
+
+/* Lists */
+.legal-body ul,
+.legal-body ol {
+    margin-bottom: var(--space-lg);
+    padding-left: var(--space-xl);
+}
+
+.legal-body li {
+    margin-bottom: var(--space-sm);
+}
+
+.legal-body ul li {
+    list-style-type: disc;
+}
+
+.legal-body ol li {
+    list-style-type: decimal;
+}
+
+.legal-body ul ul,
+.legal-body ol ol,
+.legal-body ul ol,
+.legal-body ol ul {
+    margin-top: var(--space-sm);
+    margin-bottom: var(--space-sm);
+}
+
+/* Blockquotes */
+.legal-body blockquote {
+    margin: var(--space-xl) 0;
+    padding: var(--space-lg) var(--space-xl);
+    background: var(--bg-card);
+    border-left: 4px solid var(--brand-primary);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.legal-body blockquote p:last-child {
+    margin-bottom: 0;
+}
+
+/* Tables */
+.legal-body table {
+    width: 100%;
+    margin: var(--space-xl) 0;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+}
+
+.legal-body th,
+.legal-body td {
+    padding: var(--space-md);
+    text-align: left;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.legal-body th {
+    font-weight: 600;
+    color: var(--text-primary);
+    background: var(--bg-elevated);
+}
+
+.legal-body tr:hover td {
+    background: var(--bg-elevated);
+}
+
+/* Code blocks */
+.legal-body code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.875em;
+    padding: 0.2em 0.4em;
+    background: var(--bg-elevated);
+    border-radius: var(--radius-sm);
+}
+
+.legal-body pre {
+    margin: var(--space-xl) 0;
+    padding: var(--space-lg);
+    background: var(--bg-elevated);
+    border-radius: var(--radius-md);
+    overflow-x: auto;
+}
+
+.legal-body pre code {
+    padding: 0;
+    background: none;
+}
+
+/* Horizontal rules */
+.legal-body hr {
+    margin: var(--space-2xl) 0;
+    border: none;
+    border-top: 1px solid var(--border-subtle);
+}
+
+/* Strong and emphasis */
+.legal-body strong {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.legal-body em {
+    font-style: italic;
+}
+
+/* WordPress specific blocks */
+.legal-body .wp-block-separator {
+    margin: var(--space-2xl) 0;
+    border-color: var(--border-subtle);
+}
+
+.legal-body .wp-block-table {
+    margin: var(--space-xl) 0;
+}
+
+/* ---------- Legal CTA ---------- */
+.legal-cta {
+    padding: var(--space-2xl) 0 var(--space-3xl);
+    border-top: 1px solid var(--border-subtle);
+}
+
+.legal-cta-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xl);
+    flex-wrap: wrap;
+}
+
+.legal-cta-content p {
+    font-size: 1.0625rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+    .legal-header {
+        padding-top: 8rem;
+        padding-bottom: var(--space-xl);
+    }
+
+    .legal-title {
+        font-size: 1.75rem;
+    }
+
+    .legal-content {
+        padding: var(--space-2xl) 0;
+    }
+
+    .legal-body {
+        font-size: 1rem;
+    }
+
+    .legal-body h2 {
+        font-size: 1.375rem;
+    }
+
+    .legal-body h3 {
+        font-size: 1.125rem;
+    }
+
+    .legal-cta-content {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--space-lg);
+    }
+}

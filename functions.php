@@ -193,6 +193,16 @@ function automatdo_scripts() {
         );
     }
 
+    // Legal pages (Privacy Policy, Terms, etc.) - pages using default page.php template
+    if (is_page() && !is_page_template()) {
+        wp_enqueue_style(
+            'automatdo-legal',
+            AUTOMATDO_URI . '/assets/css/legal.css',
+            array('automatdo-landing'),
+            AUTOMATDO_VERSION
+        );
+    }
+
     // Main JavaScript
     wp_enqueue_script(
         'automatdo-landing',

@@ -167,14 +167,12 @@ get_header();
                         </div>
                         <div class="founder-bio" itemprop="description">
                             <p>
-                                Ryan brings 25 years of experience in technology and entrepreneurship to Automatdo.
-                                Before founding Automatdo, he built and scaled HelloGym, gaining firsthand insight
-                                into the challenges businesses face managing customer communications at scale.
+                                Ryan is a builder first. With 25 years of experience in technology and entrepreneurship, he approaches AI not as a hype cycle, but as an engineering challenge. 
+                                Before founding Automatdo, he built and scaled HelloGym, where he lived the daily struggle of managing customer communication at scale.
                             </p>
                             <p>
-                                Passionate about the intersection of AI and human communication, Ryan leads
-                                Automatdo's mission to transform how businesses connect with their customers
-                                through intelligent voice technology.
+                                Unlike typical CEOs, Ryan is a technical architect who still writes production code. He leads Automatdo with a focus on "shipped and measurable"—building 
+                                the battle-tested voice infrastructure he wished he had a decade ago.
                             </p>
                         </div>
                         <div class="founder-credentials">
