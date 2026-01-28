@@ -119,7 +119,7 @@
     const EXIT_CTA_STORAGE_KEY = 'automatdo_exit_cta_count';
 
     // Exit CTA frequency settings
-    const EXIT_CTA_SHOW_EVERY_N = 3; // Show CTA every Nth demo session
+    const EXIT_CTA_SHOW_EVERY_N = 1; // Show CTA every time
 
     // Engagement thresholds for showing exit CTA
     const MIN_ENGAGEMENT_SECONDS = 10; // Must have demo open for at least 10 seconds
