@@ -1,7 +1,7 @@
 <?php
 /**
  * Template Name: Solutions Page
- * Description: Comprehensive solutions showcase with industry-specific voice demos
+ * Description: Interactive demo experience showcasing the full Automatdo platform
  *
  * @package Automatdo
  */
@@ -9,634 +9,874 @@
 get_header();
 ?>
 
-<main id="main-content" class="solutions-page">
+<main id="main-content" class="solutions-page solutions-demo-experience">
 
-    <!-- Hero Section -->
-    <section class="solutions-hero">
+    <!-- Compact Hero -->
+    <section class="solutions-hero-compact">
         <div class="section-container">
-            <div class="solutions-hero-content">
-                <span class="section-tag">Complete Voice AI Platform</span>
-                <h1 class="solutions-hero-title">
-                    <span class="title-line">From Voice to Value</span>
-                    <span class="title-line title-gradient">Complete Business Solutions</span>
-                </h1>
-                <p class="solutions-hero-subtitle">
-                    Transform your customer interactions with an integrated voice AI ecosystem. 
-                    Handle calls, manage relationships, and scale operations—all in one platform.
-                </p>
-                <div class="solutions-hero-cta">
-                    <a href="#solutions-grid" class="btn-primary btn-large">
-                        <span>Explore Solutions</span>
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </a>
-                    <a href="#demo" class="btn-secondary btn-large">
-                        <span>Book a Demo</span>
-                    </a>
-                </div>
+            <div class="hero-badge">
+                <span class="badge-dot"></span>
+                <span>Interactive Platform Demo</span>
             </div>
+            <h1 class="hero-title">
+                <span class="title-line">Experience the</span>
+                <span class="title-line title-accent">Complete Platform</span>
+            </h1>
+            <p class="hero-subtitle">
+                Explore our CRM, voice agents, compliance tools, and more.
+                Try everything before you commit.
+            </p>
         </div>
-        
-        <!-- Hero Visual - Solutions Hub -->
-        <div class="solutions-hero-visual">
-            <div class="solutions-hub">
-                <div class="hub-row hub-top">
-                    <div class="hub-node">
-                        <span class="hub-icon">🎙️</span>
-                        <span class="hub-label">Voice Agents</span>
-                    </div>
-                </div>
-                <div class="hub-row hub-middle">
-                    <div class="hub-node">
-                        <span class="hub-icon">🧠</span>
-                        <span class="hub-label">CRM</span>
-                    </div>
-                    <div class="hub-center">
-                        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-                            <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="2"/>
-                            <path d="M24 32c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                            <path d="M32 20v8M32 36v8M20 32h8M36 32h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        </svg>
-                        <span class="hub-center-label">Automatdo</span>
-                    </div>
-                    <div class="hub-node">
-                        <span class="hub-icon">📞</span>
-                        <span class="hub-label">Campaigns</span>
-                    </div>
-                </div>
-                <div class="hub-row hub-bottom">
-                    <div class="hub-node">
-                        <span class="hub-icon">✅</span>
-                        <span class="hub-label">Compliance</span>
-                    </div>
-                    <div class="hub-node">
-                        <span class="hub-icon">📢</span>
-                        <span class="hub-label">Marketing</span>
-                    </div>
-                    <div class="hub-node">
-                        <span class="hub-icon">🔗</span>
-                        <span class="hub-label">Integrations</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="hero-glow"></div>
     </section>
 
-    <!-- Solutions Grid -->
-    <section class="solutions-grid-section" id="solutions-grid">
-        <div class="section-container">
-            <div class="section-header">
-                <span class="section-tag">Solutions</span>
-                <h2 class="section-title">Everything You Need to Scale</h2>
-                <p class="section-subtitle">
-                    Six integrated solutions that work together to transform your customer experience.
-                </p>
+    <!-- Tab Navigation -->
+    <nav class="solutions-tabs" id="solutions-tabs">
+        <div class="tabs-container">
+            <div class="tabs-track">
+                <button class="tab-btn active" data-tab="crm" data-step="1">
+                    <span class="tab-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                    </span>
+                    <span class="tab-label">CRM Demo</span>
+                    <span class="tab-number">01</span>
+                </button>
+                <button class="tab-btn" data-tab="voice" data-step="2">
+                    <span class="tab-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                            <line x1="12" y1="19" x2="12" y2="23"/>
+                        </svg>
+                    </span>
+                    <span class="tab-label">Voice Demo</span>
+                    <span class="tab-number">02</span>
+                </button>
+                <button class="tab-btn" data-tab="compliance" data-step="3">
+                    <span class="tab-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            <path d="M9 12l2 2 4-4"/>
+                        </svg>
+                    </span>
+                    <span class="tab-label">Compliance</span>
+                    <span class="tab-number">03</span>
+                </button>
+                <button class="tab-btn" data-tab="sms" data-step="4">
+                    <span class="tab-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                    </span>
+                    <span class="tab-label">SMS Flow</span>
+                    <span class="tab-number">04</span>
+                </button>
+                <button class="tab-btn" data-tab="campaigns" data-step="5">
+                    <span class="tab-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                        </svg>
+                    </span>
+                    <span class="tab-label">Campaigns</span>
+                    <span class="tab-number">05</span>
+                </button>
             </div>
+            <div class="tabs-indicator"></div>
+        </div>
+    </nav>
 
-            <div class="solutions-grid">
-                <!-- Solution 1: Realtime Voice Agents -->
-                <div class="solution-card" data-solution="voice-agents">
-                    <div class="solution-card-header">
-                        <div class="solution-icon">
-                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                                <path d="M16 4C9.373 4 4 9.373 4 16s5.373 12 12 12 12-5.373 12-12S22.627 4 16 4z" stroke="currentColor" stroke-width="2"/>
-                                <path d="M13 12l6 4-6 4V12z" fill="currentColor"/>
-                            </svg>
-                        </div>
-                        <span class="solution-number">01</span>
+    <!-- Tab Panels Container -->
+    <div class="solutions-panels" id="solutions-panels">
+
+        <!-- Panel 1: CRM Demo -->
+        <section class="solutions-panel active" id="panel-crm" data-panel="crm">
+            <div class="panel-container">
+                <div class="panel-header">
+                    <div class="panel-info">
+                        <h2 class="panel-title">Customer Data Setup</h2>
+                        <p class="panel-desc">Configure the demo customer profile. The voice agent will reference this data during your call.</p>
                     </div>
-                    <h3 class="solution-title">Realtime Voice Agents</h3>
-                    <p class="solution-desc">
-                        Handle customer calls 24/7 with AI agents that sound human, understand context, and resolve issues without wait times.
-                    </p>
-                    <ul class="solution-benefits">
-                        <li>
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M4 10l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <span>Sub-300ms response time</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M4 10l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <span>Natural interruption handling</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M4 10l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <span>50+ languages supported</span>
-                        </li>
-                    </ul>
-                    <div class="solution-visual">
-                        <div class="voice-agent-mockup">
-                            <div class="mockup-header">
-                                <span class="mockup-status active">● Live Call</span>
-                                <span class="mockup-time">2:34</span>
+                    <div class="panel-cta">
+                        <span class="cta-hint">Ready to hear your data in action?</span>
+                        <a href="#demo" class="btn-contextual">Talk to Sales</a>
+                    </div>
+                </div>
+
+                <!-- Industry Selector -->
+                <div class="industry-selector">
+                    <span class="selector-label">Select Industry</span>
+                    <div class="industry-tabs">
+                        <button class="industry-tab active" data-industry="tpv">
+                            <span class="ind-icon">⚡</span>
+                            <span class="ind-name">Energy TPV</span>
+                        </button>
+                        <button class="industry-tab" data-industry="fitness">
+                            <span class="ind-icon">💪</span>
+                            <span class="ind-name">Fitness</span>
+                        </button>
+                        <button class="industry-tab" data-industry="home-services">
+                            <span class="ind-icon">🏠</span>
+                            <span class="ind-name">Home Services</span>
+                        </button>
+                        <button class="industry-tab" data-industry="contact-center">
+                            <span class="ind-icon">🎧</span>
+                            <span class="ind-name">Contact Center</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CRM Card -->
+                <div class="crm-demo-card">
+                    <div class="crm-card-inner">
+                        <!-- Customer Profile Section -->
+                        <div class="crm-section crm-profile">
+                            <div class="crm-avatar" id="crm-avatar">
+                                <span class="avatar-initials">MR</span>
                             </div>
-                            <div class="mockup-transcript">
-                                <div class="transcript-bubble agent">
-                                    <span class="bubble-speaker">AI Agent</span>
-                                    <span class="bubble-text">I can help you schedule that appointment for tomorrow afternoon.</span>
+                            <div class="crm-primary-fields">
+                                <div class="field-group field-name">
+                                    <label class="field-label">Customer Name</label>
+                                    <div class="field-row">
+                                        <input type="text" class="field-input" id="crm-firstName" value="Maria" placeholder="First Name">
+                                        <input type="text" class="field-input" id="crm-lastName" value="Rodriguez" placeholder="Last Name">
+                                    </div>
                                 </div>
-                                <div class="transcript-bubble customer">
-                                    <span class="bubble-speaker">Customer</span>
-                                    <span class="bubble-text">Great, 2 PM works for me.</span>
+                                <div class="field-group">
+                                    <label class="field-label">Phone Number</label>
+                                    <input type="tel" class="field-input" id="crm-phone" value="(512) 555-0147" placeholder="Phone">
+                                    <span class="field-hint">Demo number - agent will reference this</span>
                                 </div>
                             </div>
-                            <div class="mockup-waveform">
-                                <div class="waveform-bar" style="--height: 30%"></div>
-                                <div class="waveform-bar" style="--height: 60%"></div>
-                                <div class="waveform-bar" style="--height: 45%"></div>
-                                <div class="waveform-bar" style="--height: 80%"></div>
-                                <div class="waveform-bar" style="--height: 55%"></div>
-                                <div class="waveform-bar" style="--height: 90%"></div>
-                                <div class="waveform-bar" style="--height: 40%"></div>
-                                <div class="waveform-bar" style="--height: 70%"></div>
+                        </div>
+
+                        <!-- Industry-specific Fields -->
+                        <div class="crm-section crm-details">
+                            <h3 class="section-label">Account Details</h3>
+                            <div class="details-grid" id="crm-details-grid">
+                                <!-- Populated by JS based on industry -->
+                            </div>
+                        </div>
+
+                        <!-- Interaction History -->
+                        <div class="crm-section crm-history">
+                            <h3 class="section-label">Recent Interactions</h3>
+                            <div class="history-timeline" id="crm-history">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+
+                        <!-- SMS Toggle -->
+                        <div class="crm-section crm-sms-toggle">
+                            <div class="toggle-card">
+                                <div class="toggle-info">
+                                    <span class="toggle-icon">📱</span>
+                                    <div class="toggle-text">
+                                        <span class="toggle-title">Enable Real SMS</span>
+                                        <span class="toggle-desc">Receive actual SMS confirmations during the demo</span>
+                                    </div>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="sms-toggle">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="real-phone-input" id="real-phone-container" style="display: none;">
+                                <label class="field-label">Your Phone Number</label>
+                                <input type="tel" class="field-input" id="crm-realPhone" placeholder="Enter your real phone number">
+                                <span class="field-hint">We'll send you real SMS messages during the demo</span>
                             </div>
                         </div>
                     </div>
-                    <button class="solution-demo-btn" data-agent="contact-center">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                            <line x1="12" y1="19" x2="12" y2="23"/>
-                            <line x1="8" y1="23" x2="16" y2="23"/>
+
+                    <!-- Start Demo Button -->
+                    <div class="crm-actions">
+                        <button class="btn-start-demo" id="btn-start-voice-demo">
+                            <span class="btn-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polygon points="5 3 19 12 5 21 5 3"/>
+                                </svg>
+                            </span>
+                            <span class="btn-text">Start Demo Call</span>
+                            <span class="btn-arrow">→</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel 2: Voice Demo -->
+        <section class="solutions-panel" id="panel-voice" data-panel="voice">
+            <div class="panel-container">
+                <div class="panel-header">
+                    <div class="panel-info">
+                        <h2 class="panel-title">Live Voice Demo</h2>
+                        <p class="panel-desc">Experience a real AI voice conversation. The agent knows your customer data.</p>
+                    </div>
+                    <div class="panel-cta">
+                        <span class="cta-hint">Want this for your calls?</span>
+                        <a href="#demo" class="btn-contextual">Get Started</a>
+                    </div>
+                </div>
+
+                <!-- Customer Context Bar -->
+                <div class="voice-context-bar" id="voice-context-bar">
+                    <div class="context-customer">
+                        <span class="context-avatar" id="voice-avatar">MR</span>
+                        <div class="context-info">
+                            <span class="context-name" id="voice-customer-name">Maria Rodriguez</span>
+                            <span class="context-meta" id="voice-customer-meta">TPV Verification • ENR-2024-9847</span>
+                        </div>
+                    </div>
+                    <button class="context-edit" id="btn-edit-crm">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                         </svg>
-                        <span>Try Live Demo</span>
+                        <span>Edit Data</span>
                     </button>
                 </div>
 
-                <!-- Solution 2: Intelligent CRM -->
-                <div class="solution-card" data-solution="crm">
-                    <div class="solution-card-header">
-                        <div class="solution-icon">
-                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                                <path d="M16 2L2 9l14 7 14-7-14-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M2 23l14 7 14-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M2 16l14 7 14-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
+                <!-- Voice Demo Widget Area -->
+                <div class="voice-demo-area">
+                    <div class="voice-demo-widget" id="voice-demo-widget">
+                        <!-- Provider Toggle -->
+                        <div class="voice-providers">
+                            <button class="provider-btn active" data-provider="openai">
+                                <span class="provider-name">OpenAI</span>
+                                <span class="provider-model">GPT-4o Realtime</span>
+                            </button>
+                            <button class="provider-btn" data-provider="xai">
+                                <span class="provider-name">xAI</span>
+                                <span class="provider-model">Grok Voice</span>
+                            </button>
                         </div>
-                        <span class="solution-number">02</span>
-                    </div>
-                    <h3 class="solution-title">Intelligent CRM</h3>
-                    <p class="solution-desc">
-                        Every call automatically builds rich customer profiles. Your agents remember every conversation and make smarter decisions.
-                    </p>
-                    <ul class="solution-benefits">
-                        <li>
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M4 10l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <span>Automatic call transcription</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M4 10l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <span>Conversation history tracking</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M4 10l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <span>Predictive customer insights</span>
-                        </li>
-                    </ul>
-                    <div class="solution-visual">
-                        <div class="crm-mockup">
-                            <div class="crm-profile">
-                                <div class="crm-avatar">JD</div>
-                                <div class="crm-info">
-                                    <span class="crm-name">John Davis</span>
-                                    <span class="crm-meta">Premium Member • 12 calls</span>
-                                </div>
+
+                        <!-- Visualizer -->
+                        <div class="voice-visualizer" id="voice-visualizer">
+                            <div class="visualizer-orb">
+                                <div class="orb-ring orb-ring-1"></div>
+                                <div class="orb-ring orb-ring-2"></div>
+                                <div class="orb-ring orb-ring-3"></div>
+                                <div class="orb-core"></div>
                             </div>
-                            <div class="crm-timeline">
-                                <div class="timeline-item">
-                                    <span class="timeline-date">Today</span>
-                                    <span class="timeline-event">Scheduled HVAC maintenance</span>
-                                </div>
-                                <div class="timeline-item">
-                                    <span class="timeline-date">Jan 15</span>
-                                    <span class="timeline-event">Asked about upgrade options</span>
-                                </div>
-                                <div class="timeline-item">
-                                    <span class="timeline-date">Jan 8</span>
-                                    <span class="timeline-event">Emergency repair request</span>
-                                </div>
-                            </div>
-                            <div class="crm-tags">
-                                <span class="crm-tag">VIP</span>
-                                <span class="crm-tag">HVAC</span>
-                                <span class="crm-tag">Maintenance</span>
+                            <div class="visualizer-bars">
+                                <!-- Generated by JS -->
                             </div>
                         </div>
+
+                        <!-- Status -->
+                        <div class="voice-status" id="voice-status">
+                            <span class="status-text">Ready to connect</span>
+                        </div>
+
+                        <!-- Transcript -->
+                        <div class="voice-transcript" id="voice-transcript">
+                            <div class="transcript-placeholder">
+                                <span>Conversation will appear here...</span>
+                            </div>
+                        </div>
+
+                        <!-- Controls -->
+                        <div class="voice-controls">
+                            <button class="voice-btn voice-btn-start" id="voice-btn-start">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                </svg>
+                                <span>Start Conversation</span>
+                            </button>
+                            <div class="voice-active-controls" style="display: none;">
+                                <button class="voice-btn voice-btn-mute" id="voice-btn-mute">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                    </svg>
+                                </button>
+                                <button class="voice-btn voice-btn-end" id="voice-btn-end">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+                                        <line x1="1" y1="1" x2="23" y2="23"/>
+                                    </svg>
+                                    <span>End Call</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <button class="solution-demo-btn" data-agent="home-services">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                            <line x1="12" y1="19" x2="12" y2="23"/>
-                            <line x1="8" y1="23" x2="16" y2="23"/>
-                        </svg>
-                        <span>Try Live Demo</span>
-                    </button>
                 </div>
 
-                <!-- Solution 3: Campaign Management -->
-                <div class="solution-card" data-solution="campaigns">
-                    <div class="solution-card-header">
-                        <div class="solution-icon">
-                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                                <path d="M22 8l-8 8-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <path d="M22 16v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h12" stroke="currentColor" stroke-width="2"/>
-                                <circle cx="24" cy="8" r="6" stroke="currentColor" stroke-width="2"/>
+                <!-- Post-Call Prompt (hidden initially) -->
+                <div class="post-call-prompt" id="post-call-prompt" style="display: none;">
+                    <div class="prompt-content">
+                        <div class="prompt-icon">✓</div>
+                        <h3 class="prompt-title">Call Completed</h3>
+                        <p class="prompt-text">See how compliance scoring and SMS confirmation work.</p>
+                        <button class="btn-view-compliance" id="btn-view-compliance">
+                            View Compliance Report
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel 3: Compliance -->
+        <section class="solutions-panel" id="panel-compliance" data-panel="compliance">
+            <div class="panel-container">
+                <div class="panel-header">
+                    <div class="panel-info">
+                        <h2 class="panel-title">Compliance Dashboard</h2>
+                        <p class="panel-desc">Every call is automatically scored for quality and regulatory compliance.</p>
+                    </div>
+                    <div class="panel-cta">
+                        <span class="cta-hint">Need compliance automation?</span>
+                        <a href="#demo" class="btn-contextual">Learn More</a>
+                    </div>
+                </div>
+
+                <div class="compliance-dashboard">
+                    <!-- Score Card -->
+                    <div class="compliance-score-card">
+                        <div class="score-ring">
+                            <svg viewBox="0 0 120 120">
+                                <circle class="score-bg" cx="60" cy="60" r="54"/>
+                                <circle class="score-fill" cx="60" cy="60" r="54" id="compliance-score-ring"/>
+                            </svg>
+                            <div class="score-value">
+                                <span class="score-number" id="compliance-score">96</span>
+                                <span class="score-label">Score</span>
+                            </div>
+                        </div>
+                        <div class="score-status">
+                            <span class="status-badge passed">PASSED</span>
+                            <span class="status-text">All requirements met</span>
+                        </div>
+                    </div>
+
+                    <!-- Checkpoints -->
+                    <div class="compliance-checkpoints">
+                        <h3 class="section-label">Verification Checkpoints</h3>
+                        <div class="checkpoints-list">
+                            <div class="checkpoint completed" data-checkpoint="identity">
+                                <div class="checkpoint-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M20 6L9 17l-5-5"/>
+                                    </svg>
+                                </div>
+                                <div class="checkpoint-info">
+                                    <span class="checkpoint-name">Identity Verification</span>
+                                    <span class="checkpoint-detail">Customer confirmed: Maria Rodriguez</span>
+                                </div>
+                                <span class="checkpoint-time">0:12</span>
+                            </div>
+                            <div class="checkpoint completed" data-checkpoint="recording">
+                                <div class="checkpoint-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M20 6L9 17l-5-5"/>
+                                    </svg>
+                                </div>
+                                <div class="checkpoint-info">
+                                    <span class="checkpoint-name">Recording Disclosure</span>
+                                    <span class="checkpoint-detail">Acknowledged at timestamp</span>
+                                </div>
+                                <span class="checkpoint-time">0:18</span>
+                            </div>
+                            <div class="checkpoint completed" data-checkpoint="terms">
+                                <div class="checkpoint-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M20 6L9 17l-5-5"/>
+                                    </svg>
+                                </div>
+                                <div class="checkpoint-info">
+                                    <span class="checkpoint-name">Service Terms Confirmed</span>
+                                    <span class="checkpoint-detail">12-Month Fixed Rate @ 8.5¢/kWh</span>
+                                </div>
+                                <span class="checkpoint-time">1:34</span>
+                            </div>
+                            <div class="checkpoint completed" data-checkpoint="authorization">
+                                <div class="checkpoint-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M20 6L9 17l-5-5"/>
+                                    </svg>
+                                </div>
+                                <div class="checkpoint-info">
+                                    <span class="checkpoint-name">Final Authorization</span>
+                                    <span class="checkpoint-detail">Verbal consent recorded</span>
+                                </div>
+                                <span class="checkpoint-time">2:08</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Audit Trail -->
+                    <div class="compliance-audit">
+                        <div class="audit-header">
+                            <h3 class="section-label">Audit Trail</h3>
+                            <button class="btn-export" id="btn-export-report">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="7 10 12 15 17 10"/>
+                                    <line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                                Export Report
+                            </button>
+                        </div>
+                        <div class="audit-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Call ID</span>
+                                <span class="meta-value">TPV-2025-0201-0847</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Duration</span>
+                                <span class="meta-value">2:34</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Recording</span>
+                                <span class="meta-value recording">
+                                    <span class="rec-dot"></span>
+                                    Stored Securely
+                                </span>
+                            </div>
+                        </div>
+                        <div class="audit-timeline">
+                            <div class="timeline-event">
+                                <span class="event-time">0:00</span>
+                                <span class="event-text">Call initiated - TPV verification workflow started</span>
+                            </div>
+                            <div class="timeline-event">
+                                <span class="event-time">0:05</span>
+                                <span class="event-text">Recording disclosure played and acknowledged</span>
+                            </div>
+                            <div class="timeline-event">
+                                <span class="event-time">0:12</span>
+                                <span class="event-text">Identity verified: "Yes, this is Maria Rodriguez"</span>
+                            </div>
+                            <div class="timeline-event">
+                                <span class="event-time">0:34</span>
+                                <span class="event-text">Current provider confirmed: Incumbent Electric Co.</span>
+                            </div>
+                            <div class="timeline-event">
+                                <span class="event-time">1:15</span>
+                                <span class="event-text">New plan details read and confirmed</span>
+                            </div>
+                            <div class="timeline-event">
+                                <span class="event-time">2:08</span>
+                                <span class="event-text">Final authorization received - Enrollment confirmed</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Certificate -->
+                    <div class="compliance-certificate">
+                        <div class="cert-badge">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                             </svg>
                         </div>
-                        <span class="solution-number">03</span>
+                        <div class="cert-content">
+                            <span class="cert-title">Compliance Certificate</span>
+                            <span class="cert-text">This call meets all regulatory requirements per FCC 47 CFR Part 64</span>
+                            <span class="cert-id">Verification ID: V-2025-0847-AX</span>
+                        </div>
                     </div>
-                    <h3 class="solution-title">Campaign Management</h3>
-                    <p class="solution-desc">
-                        Automate inbound and outbound call campaigns at scale. Handle thousands of calls simultaneously without adding headcount.
-                    </p>
-                    <ul class="solution-benefits">
-                        <li>
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M4 10l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel 4: SMS Flow -->
+        <section class="solutions-panel" id="panel-sms" data-panel="sms">
+            <div class="panel-container">
+                <div class="panel-header">
+                    <div class="panel-info">
+                        <h2 class="panel-title">SMS Confirmation Flow</h2>
+                        <p class="panel-desc">Voice calls trigger automatic SMS confirmations and follow-ups.</p>
+                    </div>
+                    <div class="panel-cta">
+                        <span class="cta-hint">Ready to automate SMS?</span>
+                        <a href="#demo" class="btn-contextual">See Pricing</a>
+                    </div>
+                </div>
+
+                <div class="sms-demo-layout">
+                    <!-- Phone Mockup -->
+                    <div class="sms-phone-mockup">
+                        <div class="phone-frame">
+                            <div class="phone-notch"></div>
+                            <div class="phone-screen">
+                                <div class="sms-header">
+                                    <span class="sms-contact">Automatdo</span>
+                                    <span class="sms-number">+1 (800) 555-AUTO</span>
+                                </div>
+                                <div class="sms-conversation" id="sms-conversation">
+                                    <!-- Messages populated by JS -->
+                                </div>
+                                <div class="sms-input-area">
+                                    <div class="sms-reply-buttons" id="sms-reply-buttons">
+                                        <!-- Reply buttons populated by JS -->
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="phone-home-bar"></div>
+                        </div>
+                    </div>
+
+                    <!-- Flow Diagram -->
+                    <div class="sms-flow-diagram">
+                        <h3 class="section-label">Integration Flow</h3>
+                        <div class="flow-steps">
+                            <div class="flow-step completed" data-flow-step="1">
+                                <div class="flow-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81"/>
+                                    </svg>
+                                </div>
+                                <span class="flow-label">Voice Call</span>
+                            </div>
+                            <div class="flow-connector active"></div>
+                            <div class="flow-step active" data-flow-step="2">
+                                <div class="flow-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                    </svg>
+                                </div>
+                                <span class="flow-label">SMS Sent</span>
+                            </div>
+                            <div class="flow-connector"></div>
+                            <div class="flow-step" data-flow-step="3">
+                                <div class="flow-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="12" cy="7" r="4"/>
+                                    </svg>
+                                </div>
+                                <span class="flow-label">CRM Updated</span>
+                            </div>
+                        </div>
+
+                        <div class="flow-status" id="flow-status">
+                            <span class="status-step">Step 2 of 3</span>
+                            <span class="status-desc">Waiting for customer response...</span>
+                        </div>
+
+                        <button class="btn-reset-sms" id="btn-reset-sms">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M23 4v6h-6"/>
+                                <path d="M1 20v-6h6"/>
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
                             </svg>
-                            <span>Unlimited concurrent calls</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M4 10l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <span>Smart scheduling & routing</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M4 10l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <span>Real-time campaign analytics</span>
-                        </li>
-                    </ul>
-                    <div class="solution-visual">
-                        <div class="campaign-mockup">
+                            Reset Demo
+                        </button>
+                    </div>
+
+                    <!-- Real SMS Status -->
+                    <div class="sms-real-status" id="sms-real-status" style="display: none;">
+                        <div class="real-sms-badge">
+                            <span class="badge-icon">📱</span>
+                            <span class="badge-text">Real SMS Enabled</span>
+                        </div>
+                        <p class="real-sms-info">Messages will be sent to your phone at <span id="real-sms-number"></span></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel 5: Campaigns -->
+        <section class="solutions-panel" id="panel-campaigns" data-panel="campaigns">
+            <div class="panel-container">
+                <div class="panel-header">
+                    <div class="panel-info">
+                        <h2 class="panel-title">Campaign Dashboard</h2>
+                        <p class="panel-desc">Scale your outreach with automated voice and SMS campaigns.</p>
+                    </div>
+                    <div class="panel-cta">
+                        <span class="cta-hint">Ready to scale?</span>
+                        <a href="#demo" class="btn-contextual">Book Demo</a>
+                    </div>
+                </div>
+
+                <div class="campaigns-dashboard">
+                    <!-- Active Campaigns -->
+                    <div class="campaigns-grid">
+                        <div class="campaign-card featured">
                             <div class="campaign-header">
-                                <span class="campaign-title">Spring Outreach</span>
-                                <span class="campaign-status active">Running</span>
+                                <div class="campaign-status running">
+                                    <span class="status-dot"></span>
+                                    Running
+                                </div>
+                                <span class="campaign-type">Voice + SMS</span>
                             </div>
-                            <div class="campaign-stats">
-                                <div class="c-stat">
-                                    <span class="c-stat-value">1,247</span>
-                                    <span class="c-stat-label">Calls Today</span>
-                                </div>
-                                <div class="c-stat">
-                                    <span class="c-stat-value">89%</span>
-                                    <span class="c-stat-label">Answer Rate</span>
-                                </div>
-                                <div class="c-stat">
-                                    <span class="c-stat-value">342</span>
-                                    <span class="c-stat-label">Conversions</span>
-                                </div>
-                            </div>
+                            <h3 class="campaign-name">Spring Renewal Outreach</h3>
+                            <p class="campaign-desc">Re-engage customers with expiring memberships</p>
+
                             <div class="campaign-progress">
                                 <div class="progress-bar">
-                                    <div class="progress-fill" style="width: 67%"></div>
+                                    <div class="progress-fill" style="--progress: 67%"></div>
                                 </div>
                                 <span class="progress-text">67% Complete</span>
                             </div>
-                        </div>
-                    </div>
-                    <button class="solution-demo-btn" data-agent="contact-center">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                            <line x1="12" y1="19" x2="12" y2="23"/>
-                            <line x1="8" y1="23" x2="16" y2="23"/>
-                        </svg>
-                        <span>Try Live Demo</span>
-                    </button>
-                </div>
 
-                <!-- Solution 4: Compliance & Scoring -->
-                <div class="solution-card" data-solution="compliance">
-                    <div class="solution-card-header">
-                        <div class="solution-icon">
-                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/>
-                                <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </div>
-                        <span class="solution-number">04</span>
-                    </div>
-                    <h3 class="solution-title">Compliance & Scoring</h3>
-                    <p class="solution-desc">
-                        Built-in quality assurance and regulatory compliance. Automatic call scoring, sentiment analysis, and complete audit trails.
-                    </p>
-                    <ul class="solution-benefits">
-                        <li>
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M4 10l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <span>TPV & regulatory compliance</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M4 10l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <span>Automated QA scoring</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M4 10l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <span>Complete audit trails</span>
-                        </li>
-                    </ul>
-                    <div class="solution-visual">
-                        <div class="compliance-mockup">
-                            <div class="compliance-header">
-                                <span class="compliance-title">Call Quality Score</span>
-                                <span class="compliance-score">94/100</span>
-                            </div>
-                            <div class="compliance-checks">
-                                <div class="check-item passed">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                        <path d="M3 8l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                    <span>Identity verified</span>
+                            <div class="campaign-stats">
+                                <div class="stat">
+                                    <span class="stat-value" data-animate="2340">0</span>
+                                    <span class="stat-label">Contacts</span>
                                 </div>
-                                <div class="check-item passed">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                        <path d="M3 8l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                    <span>Consent recorded</span>
+                                <div class="stat">
+                                    <span class="stat-value" data-animate="89" data-suffix="%">0</span>
+                                    <span class="stat-label">Answer Rate</span>
                                 </div>
-                                <div class="check-item passed">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                        <path d="M3 8l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                    <span>Terms acknowledged</span>
+                                <div class="stat">
+                                    <span class="stat-value" data-animate="342">0</span>
+                                    <span class="stat-label">Conversions</span>
                                 </div>
-                                <div class="check-item passed">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                        <path d="M3 8l3 3 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                    <span>Authorization confirmed</span>
-                                </div>
-                            </div>
-                            <div class="compliance-recording">
-                                <span class="recording-indicator">●</span>
-                                <span>Recording stored securely</span>
                             </div>
                         </div>
-                    </div>
-                    <button class="solution-demo-btn" data-agent="tpv">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                            <line x1="12" y1="19" x2="12" y2="23"/>
-                            <line x1="8" y1="23" x2="16" y2="23"/>
-                        </svg>
-                        <span>Try Live Demo</span>
-                    </button>
-                </div>
 
-                <!-- Solution 5: Outbound Marketing -->
-                <div class="solution-card" data-solution="marketing">
-                    <div class="solution-card-header">
-                        <div class="solution-icon">
-                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                                <path d="M28 16l-8-8v5H4v6h16v5l8-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                <circle cx="24" cy="8" r="3" stroke="currentColor" stroke-width="2"/>
-                            </svg>
-                        </div>
-                        <span class="solution-number">05</span>
-                    </div>
-                    <h3 class="solution-title">Outbound Marketing</h3>
-                    <p class="solution-desc">
-                        Proactive voice and SMS campaigns that match what customers previously called about. Turn one-time callers into loyal customers.
-                    </p>
-                    <ul class="solution-benefits">
-                        <li>
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M4 10l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <span>Voice + SMS campaigns</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M4 10l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <span>Behavior-based targeting</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M4 10l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <span>Automated follow-up sequences</span>
-                        </li>
-                    </ul>
-                    <div class="solution-visual">
-                        <div class="marketing-mockup">
-                            <div class="marketing-message">
-                                <div class="message-header">
-                                    <span class="message-type">SMS</span>
-                                    <span class="message-time">Just now</span>
+                        <div class="campaign-card">
+                            <div class="campaign-header">
+                                <div class="campaign-status scheduled">
+                                    <span class="status-dot"></span>
+                                    Scheduled
                                 </div>
-                                <div class="message-content">
-                                    Hi Sarah! You asked about our premium membership last week. 
-                                    We have a special offer ending tomorrow. Want me to schedule 
-                                    a quick call to discuss?
-                                </div>
+                                <span class="campaign-type">SMS Only</span>
                             </div>
-                            <div class="marketing-reply">
-                                <span class="reply-text">Yes, tomorrow at 2pm works!</span>
-                            </div>
-                            <div class="marketing-automation">
-                                <span class="automation-badge">✓ Auto-scheduled</span>
-                            </div>
-                        </div>
-                    </div>
-                    <button class="solution-demo-btn" data-agent="fitness">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                            <line x1="12" y1="19" x2="12" y2="23"/>
-                            <line x1="8" y1="23" x2="16" y2="23"/>
-                        </svg>
-                        <span>Try Live Demo</span>
-                    </button>
-                </div>
+                            <h3 class="campaign-name">Win-Back Campaign</h3>
+                            <p class="campaign-desc">Re-activate churned customers with special offers</p>
 
-                <!-- Solution 6: CRM Integration -->
-                <div class="solution-card" data-solution="integration">
-                    <div class="solution-card-header">
-                        <div class="solution-icon">
-                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                                <path d="M8 12h16M8 16h16M8 20h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                <rect x="4" y="4" width="24" height="24" rx="2" stroke="currentColor" stroke-width="2"/>
-                            </svg>
-                        </div>
-                        <span class="solution-number">06</span>
-                    </div>
-                    <h3 class="solution-title">CRM Integration</h3>
-                    <p class="solution-desc">
-                        Seamlessly connect with your existing tools. Sync with Salesforce, HubSpot, GoHighLevel, and custom CRMs in real-time.
-                    </p>
-                    <ul class="solution-benefits">
-                        <li>
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M4 10l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <span>Real-time bidirectional sync</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M4 10l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <span>Native calendar integration</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                <path d="M4 10l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <span>Custom webhook support</span>
-                        </li>
-                    </ul>
-                    <div class="solution-visual">
-                        <div class="integration-mockup">
-                            <div class="integration-center">
-                                <div class="center-icon">⚡</div>
-                                <span class="center-label">Automatdo</span>
+                            <div class="campaign-schedule">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/>
+                                    <line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                <span>Starts Feb 1, 2025</span>
                             </div>
-                            <div class="integration-connections">
-                                <div class="integration-item">
-                                    <span class="int-logo">📅</span>
-                                    <span class="int-name">Google Calendar</span>
+
+                            <div class="campaign-stats">
+                                <div class="stat">
+                                    <span class="stat-value">890</span>
+                                    <span class="stat-label">Contacts</span>
                                 </div>
-                                <div class="integration-item">
-                                    <span class="int-logo">📧</span>
-                                    <span class="int-name">Salesforce</span>
+                                <div class="stat">
+                                    <span class="stat-value">--</span>
+                                    <span class="stat-label">Answer Rate</span>
                                 </div>
-                                <div class="integration-item">
-                                    <span class="int-logo">📊</span>
-                                    <span class="int-name">HubSpot</span>
-                                </div>
-                                <div class="integration-item">
-                                    <span class="int-logo">📱</span>
-                                    <span class="int-name">Twilio</span>
+                                <div class="stat">
+                                    <span class="stat-value">--</span>
+                                    <span class="stat-label">Conversions</span>
                                 </div>
                             </div>
-                            <svg class="integration-lines" viewBox="0 0 300 200">
-                                <line x1="150" y1="100" x2="80" y2="40"/>
-                                <line x1="150" y1="100" x2="220" y2="40"/>
-                                <line x1="150" y1="100" x2="80" y2="160"/>
-                                <line x1="150" y1="100" x2="220" y2="160"/>
-                            </svg>
                         </div>
                     </div>
-                    <button class="solution-demo-btn" data-agent="contact-center">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                            <line x1="12" y1="19" x2="12" y2="23"/>
-                            <line x1="8" y1="23" x2="16" y2="23"/>
-                        </svg>
-                        <span>Try Live Demo</span>
-                    </button>
+
+                    <!-- Live Stats Ticker -->
+                    <div class="campaigns-live-stats">
+                        <div class="live-header">
+                            <span class="live-indicator">
+                                <span class="live-dot"></span>
+                                Live Activity
+                            </span>
+                            <span class="live-time">Today</span>
+                        </div>
+                        <div class="live-grid">
+                            <div class="live-stat">
+                                <span class="live-value" data-animate="1247">0</span>
+                                <span class="live-label">Calls Made</span>
+                            </div>
+                            <div class="live-stat">
+                                <span class="live-value" data-animate="892">0</span>
+                                <span class="live-label">SMS Sent</span>
+                            </div>
+                            <div class="live-stat">
+                                <span class="live-value" data-animate="156">0</span>
+                                <span class="live-label">Appointments</span>
+                            </div>
+                            <div class="live-stat">
+                                <span class="live-value" data-animate="94" data-suffix="%">0</span>
+                                <span class="live-label">Success Rate</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Campaign Builder Preview -->
+                    <div class="campaign-builder-preview">
+                        <h3 class="section-label">Campaign Builder</h3>
+                        <div class="builder-flow">
+                            <div class="builder-node">
+                                <div class="node-icon">👥</div>
+                                <span class="node-label">Select Audience</span>
+                                <span class="node-value">Expiring in 30 days</span>
+                            </div>
+                            <div class="builder-arrow">→</div>
+                            <div class="builder-node">
+                                <div class="node-icon">📞</div>
+                                <span class="node-label">Choose Channel</span>
+                                <span class="node-value">Voice + SMS</span>
+                            </div>
+                            <div class="builder-arrow">→</div>
+                            <div class="builder-node">
+                                <div class="node-icon">📝</div>
+                                <span class="node-label">Set Script</span>
+                                <span class="node-value">Renewal Offer</span>
+                            </div>
+                            <div class="builder-arrow">→</div>
+                            <div class="builder-node node-launch">
+                                <div class="node-icon">🚀</div>
+                                <span class="node-label">Launch</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- How It Works Section -->
-    <section class="how-it-works">
+    </div>
+
+    <!-- Journey Progress Indicator -->
+    <div class="journey-progress" id="journey-progress">
+        <div class="progress-track">
+            <div class="progress-step completed" data-step="1">
+                <span class="step-marker">1</span>
+                <span class="step-label">Setup</span>
+            </div>
+            <div class="progress-connector"></div>
+            <div class="progress-step" data-step="2">
+                <span class="step-marker">2</span>
+                <span class="step-label">Voice</span>
+            </div>
+            <div class="progress-connector"></div>
+            <div class="progress-step" data-step="3">
+                <span class="step-marker">3</span>
+                <span class="step-label">Compliance</span>
+            </div>
+            <div class="progress-connector"></div>
+            <div class="progress-step" data-step="4">
+                <span class="step-marker">4</span>
+                <span class="step-label">SMS</span>
+            </div>
+            <div class="progress-connector"></div>
+            <div class="progress-step" data-step="5">
+                <span class="step-marker">5</span>
+                <span class="step-label">Campaigns</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Wizard Navigation -->
+    <div class="mobile-wizard-nav" id="mobile-wizard-nav">
+        <button class="wizard-btn wizard-prev" id="wizard-prev" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            <span>Back</span>
+        </button>
+        <div class="wizard-indicator">
+            <span class="wizard-current" id="wizard-current">1</span>
+            <span class="wizard-sep">/</span>
+            <span class="wizard-total">5</span>
+        </div>
+        <button class="wizard-btn wizard-next" id="wizard-next">
+            <span>Next</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Journey Completion Modal -->
+    <div class="journey-complete-modal" id="journey-complete-modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+            </div>
+            <h2 class="modal-title">You've Explored Everything!</h2>
+            <p class="modal-text">Ready to transform your customer conversations with Automatdo?</p>
+            <div class="modal-actions">
+                <a href="#demo" class="btn-primary-large">
+                    <span>Book Your Demo</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+                <button class="btn-secondary-modal" id="modal-keep-exploring">
+                    Keep Exploring
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Feature Cards -->
+    <section class="solutions-summary" id="solutions-summary">
         <div class="section-container">
             <div class="section-header">
-                <span class="section-tag">How It Works</span>
-                <h2 class="section-title">From First Call to Loyal Customer</h2>
-                <p class="section-subtitle">
-                    See how all six solutions work together to create seamless customer experiences.
-                </p>
+                <span class="section-tag">Platform Overview</span>
+                <h2 class="section-title">Everything in One Place</h2>
             </div>
-
-            <div class="workflow-steps">
-                <div class="workflow-step">
-                    <div class="step-number">1</div>
-                    <div class="step-content">
-                        <h3>Customer Calls</h3>
-                        <p>Voice Agent answers instantly, 24/7, in their preferred language</p>
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                        </svg>
                     </div>
-                    <div class="step-visual">
-                        <div class="step-icon">📞</div>
-                    </div>
+                    <h3>Voice Agents</h3>
+                    <p>Sub-300ms AI responses, 50+ languages</p>
                 </div>
-
-                <div class="workflow-connector"></div>
-
-                <div class="workflow-step">
-                    <div class="step-number">2</div>
-                    <div class="step-content">
-                        <h3>CRM Enriches</h3>
-                        <p>Agent instantly sees customer history and personalizes the conversation</p>
+                <div class="summary-card">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
                     </div>
-                    <div class="step-visual">
-                        <div class="step-icon">🧠</div>
+                    <h3>Smart CRM</h3>
+                    <p>Auto-transcription, customer insights</p>
+                </div>
+                <div class="summary-card">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
                     </div>
+                    <h3>Compliance</h3>
+                    <p>TPV automation, audit trails</p>
                 </div>
-
-                <div class="workflow-connector"></div>
-
-                <div class="workflow-step">
-                    <div class="step-number">3</div>
-                    <div class="step-content">
-                        <h3>Issue Resolved</h3>
-                        <p>Agent books appointments, answers questions, or escalates intelligently</p>
+                <div class="summary-card">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
                     </div>
-                    <div class="step-visual">
-                        <div class="step-icon">✅</div>
+                    <h3>SMS Integration</h3>
+                    <p>Automated confirmations & follow-ups</p>
+                </div>
+                <div class="summary-card">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                        </svg>
                     </div>
+                    <h3>Campaigns</h3>
+                    <p>Scalable outbound, smart scheduling</p>
                 </div>
-
-                <div class="workflow-connector"></div>
-
-                <div class="workflow-step">
-                    <div class="step-number">4</div>
-                    <div class="step-content">
-                        <h3>Smart Follow-up</h3>
-                        <p>Automated campaigns nurture relationships and drive repeat business</p>
+                <div class="summary-card">
+                    <div class="card-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <path d="M3 9h18M9 21V9"/>
+                        </svg>
                     </div>
-                    <div class="step-visual">
-                        <div class="step-icon">🔄</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Stats Banner -->
-    <section class="solutions-stats-banner">
-        <div class="section-container">
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <span class="stat-value">10,000+</span>
-                    <span class="stat-label">Calls Automated</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-value">94%</span>
-                    <span class="stat-label">Customer Satisfaction</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-value">50+</span>
-                    <span class="stat-label">Languages Supported</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-value">24/7</span>
-                    <span class="stat-label">Always Available</span>
+                    <h3>Integrations</h3>
+                    <p>Salesforce, HubSpot, custom APIs</p>
                 </div>
             </div>
         </div>

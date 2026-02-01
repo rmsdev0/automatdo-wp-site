@@ -189,6 +189,9 @@
             this.timeoutSecondsRemaining = 0;
             this.timeoutCountdownInterval = null;
 
+            // CRM context for Solutions page integration
+            this.crmContext = null;
+
             // Config from WordPress
             this.config = window.voiceDemoConfig || {
                 wsEndpoint: 'wss://app.automatdo.com/browser-voice-agent'
@@ -572,6 +575,35 @@
             } catch (e) {
                 console.warn('[VoiceDemo] Failed to save settings:', e);
             }
+        }
+
+        /**
+         * Set CRM context for the voice agent
+         * Called from Solutions page to pass customer data to the agent
+         * @param {Object} data - Customer data from CRM panel
+         */
+        setCRMContext(data) {
+            if (!data) {
+                this.crmContext = null;
+                return;
+            }
+
+            this.crmContext = {
+                customer_name: `${data.firstName} ${data.lastName}`,
+                phone: data.realPhone || data.phone,
+                industry: data.industry || null,
+                context_label: data.contextMeta || null,
+                ...data
+            };
+
+            console.log('[VoiceDemo] CRM context set:', this.crmContext);
+        }
+
+        /**
+         * Clear CRM context
+         */
+        clearCRMContext() {
+            this.crmContext = null;
         }
 
         bindEvents() {
@@ -1251,14 +1283,21 @@
                         fail(new Error('Session start timeout'));
                     }, SESSION_TIMEOUT_MS);
                     // Send start message with provider and settings
-                    this.ws.send(JSON.stringify({
+                    const startMessage = {
                         type: 'start',
                         agent_id: this.selectedAgent,
                         provider: this.selectedProvider,
                         voice: this.getCurrentVoice(),
                         intro_mode: this.introMode,
                         config: { sample_rate: this.inputSampleRate }
-                    }));
+                    };
+
+                    // Include CRM context if set (from Solutions page)
+                    if (this.crmContext) {
+                        startMessage.crm_context = this.crmContext;
+                    }
+
+                    this.ws.send(JSON.stringify(startMessage));
                 };
 
                 this.ws.onmessage = (event) => {
