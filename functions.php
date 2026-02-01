@@ -203,6 +203,48 @@ function automatdo_scripts() {
         );
     }
 
+    // Solutions page
+    if (is_page_template('page-solutions.php')) {
+        wp_enqueue_style(
+            'automatdo-solutions',
+            AUTOMATDO_URI . '/assets/css/solutions.css',
+            array('automatdo-landing'),
+            AUTOMATDO_VERSION
+        );
+        wp_enqueue_script(
+            'automatdo-solutions-js',
+            AUTOMATDO_URI . '/assets/js/solutions.js',
+            array('automatdo-landing'),
+            AUTOMATDO_VERSION,
+            true
+        );
+        // Voice Demo Widget (also needed on solutions page)
+        wp_enqueue_style(
+            'automatdo-voice-demo',
+            AUTOMATDO_URI . '/assets/css/voice-demo.css',
+            array('automatdo-landing'),
+            AUTOMATDO_VERSION
+        );
+        wp_enqueue_script(
+            'automatdo-voice-demo',
+            AUTOMATDO_URI . '/assets/js/voice-demo.js',
+            array('automatdo-landing'),
+            AUTOMATDO_VERSION,
+            true
+        );
+        // Detect local development environment
+        $is_local = strpos(home_url(), '.local') !== false || strpos(home_url(), 'localhost') !== false;
+        $ws_endpoint = $is_local
+            ? 'ws://localhost:8000/browser-voice-agent'
+            : 'wss://app.automatdo.com/browser-voice-agent';
+
+        wp_localize_script('automatdo-voice-demo', 'voiceDemoConfig', array(
+            'wsEndpoint' => $ws_endpoint,
+            'themeUrl'   => AUTOMATDO_URI,
+            'audioProcessorUrl' => AUTOMATDO_URI . '/assets/js/audio-processor.js',
+        ));
+    }
+
     // Legal pages (Privacy Policy, Terms, etc.) - pages using default page.php template
     if (is_page() && !is_page_template()) {
         wp_enqueue_style(

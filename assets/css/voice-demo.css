@@ -1665,6 +1665,10 @@ body.voice-demo-open {
     border: 1px solid var(--border-subtle);
 }
 
+.voice-demo-rate-limit-message:empty {
+    display: none;
+}
+
 /* Highlight box */
 .voice-demo-rate-limit-highlight {
     display: flex;

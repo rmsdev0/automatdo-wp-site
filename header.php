@@ -99,7 +99,7 @@
             <div class="nav-links">
                 <a href="<?php echo home_url('/'); ?>" class="nav-link">Home</a>
                 <a href="<?php echo home_url('/features'); ?>" class="nav-link">Features</a>
-                <a href="<?php echo home_url('/#solutions'); ?>" class="nav-link">Solutions</a>
+                <a href="<?php echo home_url('/solutions/'); ?>" class="nav-link">Solutions</a>
                 <a href="<?php echo home_url('/blog/'); ?>" class="nav-link<?php echo is_home() || is_singular('post') || is_archive() ? ' active' : ''; ?>">Blog</a>
                 <a href="<?php echo home_url('/faq/'); ?>" class="nav-link">FAQ</a>
                 <a href="<?php echo home_url('/contact/'); ?>" class="nav-link">Contact</a>
